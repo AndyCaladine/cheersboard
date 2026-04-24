@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}CheersBoard{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+</head>
+<body>
+
+    <nav>
+        <a href="/" class="nav-logo">CheersBoard</a>
+        <div class="nav-links">
+            {% if current_user.is_authenticated %}
+                <span>Hi {{ current_user.first_name }}</span>
+                <a href="{{ url_for('auth.logout') }}">Log out</a>
+            {% else %}
+                <a href="{{ url_for('auth.login') }}">Log in</a>
+                <a href="{{ url_for('auth.register') }}">Register</a>
+            {% endif %}
+        </div>
+    </nav>
+
+    <main>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="flash flash-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </main>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

@@ -17,6 +17,10 @@ def create_app():
     from routes.payments import payments_bp
     from routes.admin import admin_bp
 
+    @login_manager.user_loader
+    def load_user(user_id):
+        return User.get(user_id)
+
     app.register_blueprint(auth_bp)
     app.register_blueprint(boards_bp)
     app.register_blueprint(payments_bp)
