@@ -1,0 +1,211 @@
+{% extends "base.html" %}
+{% block title %}Create Account — Step 3 of 5{% endblock %}
+{% block body_class %}page--register{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/pages/register.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="register">
+    <div class="register__inner">
+
+        <!-- Progress bar -->
+        <div class="progress">
+            <div class="progress__steps">
+                {% set labels = ['About You', 'Address', 'Security', 'Preferences', 'Review'] %}
+                {% for i in range(1, 6) %}
+                <div class="progress__step {% if i < step %}is-complete{% elif i == step %}is-active{% endif %}">
+                    <div class="progress__dot">{% if i < step %}✓{% else %}{{ i }}{% endif %}</div>
+                    <div class="progress__label">{{ labels[i-1] }}</div>
+                </div>
+                {% endfor %}
+            </div>
+            <div class="progress__bar-track">
+                <div class="progress__bar-fill" style="width: {{ ((step - 1) / 4) * 100 }}%"></div>
+            </div>
+        </div>
+
+        <!-- Step card -->
+        <div class="step-card">
+            <div class="step-card__header">
+                <span class="step-card__icon">🔐</span>
+                <h1 class="step-card__title">Keep it secure</h1>
+                <p class="step-card__subtitle">Set a strong password and choose a security question.</p>
+            </div>
+
+            <form method="POST" action="{{ url_for('auth.register_step3') }}" novalidate>
+
+                <!-- Password -->
+                <div class="form-group">
+                    <label class="form-label" for="password">
+                        Password <span class="form-label__required">*</span>
+                    </label>
+                    <div class="input-wrapper">
+                        <input
+                            class="form-input {% if errors.get('password') %}form-input--error{% endif %}"
+                            type="password"
+                            id="password"
+                            name="password"
+                            placeholder="At least 8 characters"
+                            autocomplete="new-password"
+                        >
+                        <button type="button" class="input-toggle" data-target="password" aria-label="Show password">
+                            <span class="input-toggle__show">👁</span>
+                            <span class="input-toggle__hide" hidden>🙈</span>
+                        </button>
+                    </div>
+                    {% if errors.get('password') %}
+                    <p class="form-error">{{ errors.password }}</p>
+                    {% endif %}
+
+                    <!-- Live password rules -->
+                    <div class="password-rules" id="password-rules">
+                        <div class="password-rule" data-rule="length">
+                            <div class="password-rule__icon"></div>
+                            At least 8 characters
+                        </div>
+                        <div class="password-rule" data-rule="upper">
+                            <div class="password-rule__icon"></div>
+                            One uppercase letter
+                        </div>
+                        <div class="password-rule" data-rule="lower">
+                            <div class="password-rule__icon"></div>
+                            One lowercase letter
+                        </div>
+                        <div class="password-rule" data-rule="number">
+                            <div class="password-rule__icon"></div>
+                            One number
+                        </div>
+                        <div class="password-rule" data-rule="special">
+                            <div class="password-rule__icon"></div>
+                            One special character (e.g. ! @ # $)
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Confirm password -->
+                <div class="form-group">
+                    <label class="form-label" for="confirm_password">
+                        Confirm password <span class="form-label__required">*</span>
+                    </label>
+                    <div class="input-wrapper">
+                        <input
+                            class="form-input {% if errors.get('confirm_password') %}form-input--error{% endif %}"
+                            type="password"
+                            id="confirm_password"
+                            name="confirm_password"
+                            placeholder="Repeat your password"
+                            autocomplete="new-password"
+                        >
+                        <button type="button" class="input-toggle" data-target="confirm_password" aria-label="Show password">
+                            <span class="input-toggle__show">👁</span>
+                            <span class="input-toggle__hide" hidden>🙈</span>
+                        </button>
+                    </div>
+                    {% if errors.get('confirm_password') %}
+                    <p class="form-error">{{ errors.confirm_password }}</p>
+                    {% endif %}
+                </div>
+
+                <!-- Security question -->
+                <div class="form-group">
+                    <label class="form-label" for="security_question">
+                        Security question <span class="form-label__required">*</span>
+                    </label>
+                    <select
+                        class="form-select {% if errors.get('security_question') %}form-input--error{% endif %}"
+                        id="security_question"
+                        name="security_question"
+                    >
+                        <option value="" disabled {% if not form_data.get('security_question') %}selected{% endif %}>
+                            Choose a question...
+                        </option>
+                        {% for q in security_questions %}
+                        <option value="{{ q }}" {% if form_data.get('security_question') == q %}selected{% endif %}>
+                            {{ q }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                    {% if errors.get('security_question') %}
+                    <p class="form-error">{{ errors.security_question }}</p>
+                    {% endif %}
+                </div>
+
+                <!-- Security answer -->
+                <div class="form-group">
+                    <label class="form-label" for="security_answer">
+                        Your answer <span class="form-label__required">*</span>
+                    </label>
+                    <input
+                        class="form-input {% if errors.get('security_answer') %}form-input--error{% endif %}"
+                        type="text"
+                        id="security_answer"
+                        name="security_answer"
+                        value="{{ form_data.get('security_answer', '') }}"
+                        placeholder="Your answer"
+                        autocomplete="off"
+                    >
+                    {% if errors.get('security_answer') %}
+                    <p class="form-error">{{ errors.security_answer }}</p>
+                    {% endif %}
+                    <p class="form-hint">
+                        Your answer is not case-sensitive and is stored securely.
+                        Keep a note of it — you will need it to recover your account.
+                        It cannot be the same as your password.
+                    </p>
+                </div>
+
+                <div class="form-actions">
+                    <a href="{{ url_for('auth.register_step2') }}" class="btn btn--ghost btn--back">← Back</a>
+                    <button type="submit" class="btn btn--primary">Continue →</button>
+                </div>
+
+            </form>
+        </div>
+
+        <p class="register__login-link">
+            Already have an account? <a href="{{ url_for('auth.login') }}">Log in here</a>
+        </p>
+
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // ============================================================
+    // Live password rule checker
+    // ============================================================
+    const passwordInput = document.getElementById('password');
+
+    const rules = {
+        length:  { el: document.querySelector('[data-rule="length"]'),  test: v => v.length >= 8 },
+        upper:   { el: document.querySelector('[data-rule="upper"]'),   test: v => /[A-Z]/.test(v) },
+        lower:   { el: document.querySelector('[data-rule="lower"]'),   test: v => /[a-z]/.test(v) },
+        number:  { el: document.querySelector('[data-rule="number"]'),  test: v => /[0-9]/.test(v) },
+        special: { el: document.querySelector('[data-rule="special"]'), test: v => /[^A-Za-z0-9]/.test(v) },
+    };
+
+    passwordInput.addEventListener('input', () => {
+        const val = passwordInput.value;
+        Object.values(rules).forEach(rule => {
+            const met = rule.test(val);
+            rule.el.classList.toggle('is-met', met);
+            rule.el.querySelector('.password-rule__icon').textContent = met ? '✓' : '';
+        });
+    });
+
+    // ============================================================
+    // Show / hide password toggles
+    // ============================================================
+    document.querySelectorAll('.input-toggle').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const target = document.getElementById(btn.dataset.target);
+            const isPassword = target.type === 'password';
+            target.type = isPassword ? 'text' : 'password';
+            btn.querySelector('.input-toggle__show').hidden = isPassword;
+            btn.querySelector('.input-toggle__hide').hidden = !isPassword;
+        });
+    });
+</script>
+{% endblock %}

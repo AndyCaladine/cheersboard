@@ -1,19 +1,24 @@
 /* ============================================================
    CheersBoard — Main Stylesheet
    ============================================================
+   Global styles only. Nothing page or feature specific lives
+   here. Each section of the app has its own page CSS file.
+
    Structure:
-   1. Variables & Reset
-   2. Base & Typography
-   3. Buttons
-   4. Navigation
-   5. Flash Messages
-   6. Hero
-   7. Sections
-   8. Steps
-   9. Occasions
-   10. Pricing
-   11. Footer
-   12. Animations
+   1.  Variables & Reset
+   2.  Base & Typography
+   3.  Buttons
+   4.  Navigation
+   5.  Flash Messages
+   6.  Hero
+   7.  Confetti
+   8.  Sections
+   9.  How It Works Steps
+   10. Occasions
+   11. Pricing
+   12. Footer
+   13. Animations
+   14. Responsive
    ============================================================ */
 
 
@@ -52,10 +57,10 @@
     --space-2xl: 6rem;
 
     /* Radius */
-    --radius-sm:  0.5rem;
-    --radius-md:  1rem;
-    --radius-lg:  1.5rem;
-    --radius-xl:  2rem;
+    --radius-sm:   0.5rem;
+    --radius-md:   1rem;
+    --radius-lg:   1.5rem;
+    --radius-xl:   2rem;
     --radius-full: 9999px;
 
     /* Shadows */
@@ -215,15 +220,7 @@ h1, h2, h3, h4 {
 .nav__logo-img {
     height: 40px;
     width: auto;
-}
-
-/* Show light logo on dark nav, hide dark version */
-.nav__logo-img--dark {
-    display: none;
-}
-
-.nav__logo-img--light {
-    display: block;
+    object-fit: contain;
 }
 
 .nav__links {
@@ -310,11 +307,9 @@ h1, h2, h3, h4 {
     align-items: center;
     padding-top: var(--nav-height);
     overflow: hidden;
-    background:
-        radial-gradient(ellipse 80% 60% at 50% 40%, #1e2d4e 0%, #141B2D 60%, #0d1220 100%);
+    background: radial-gradient(ellipse 80% 60% at 50% 40%, #1e2d4e 0%, #141B2D 60%, #0d1220 100%);
 }
 
-/* Subtle noise texture overlay */
 .hero::after {
     content: '';
     position: absolute;
@@ -371,8 +366,9 @@ h1, h2, h3, h4 {
     animation-delay: 0.4s;
 }
 
+
 /* ============================================================
-   Confetti
+   7. Confetti
    ============================================================ */
 
 .hero__confetti {
@@ -389,37 +385,30 @@ h1, h2, h3, h4 {
     animation: confetti-fall linear infinite;
 }
 
-/* Circles */
-.confetti--1  { width: 12px; height: 12px; background: var(--color-yellow);  border-radius: 50%;    top: 8%;  left: 12%; animation-duration: 9s;  animation-delay: 0s;    }
-.confetti--2  { width: 10px; height: 10px; background: var(--color-coral);   border-radius: 50%;    top: 15%; left: 82%; animation-duration: 11s; animation-delay: 1.5s;  }
-.confetti--3  { width: 14px; height: 14px; background: var(--color-teal);    border-radius: 50%;    top: 55%; left: 7%;  animation-duration: 8s;  animation-delay: 3s;    }
-.confetti--4  { width:  8px; height:  8px; background: var(--color-purple);  border-radius: 50%;    top: 70%; left: 88%; animation-duration: 10s; animation-delay: 0.5s;  }
-.confetti--5  { width: 12px; height: 12px; background: var(--color-green);   border-radius: 50%;    top: 30%; left: 92%; animation-duration: 13s; animation-delay: 4s;    }
-.confetti--6  { width:  9px; height:  9px; background: var(--color-pink);    border-radius: 50%;    top: 80%; left: 35%; animation-duration: 7s;  animation-delay: 2s;    }
-
-/* Rectangles */
-.confetti--7  { width: 10px; height: 22px; background: var(--color-yellow);  border-radius: 2px;    top: 20%; left: 25%; animation-duration: 12s; animation-delay: 0.8s;  }
-.confetti--8  { width: 18px; height:  8px; background: var(--color-coral);   border-radius: 2px;    top: 60%; left: 70%; animation-duration: 9s;  animation-delay: 2.5s;  }
-.confetti--9  { width:  8px; height: 20px; background: var(--color-teal);    border-radius: 2px;    top: 10%; left: 60%; animation-duration: 14s; animation-delay: 1s;    }
-.confetti--10 { width: 16px; height:  7px; background: var(--color-purple);  border-radius: 2px;    top: 75%; left: 18%; animation-duration: 10s; animation-delay: 3.5s;  }
-.confetti--11 { width: 10px; height: 24px; background: var(--color-green);   border-radius: 2px;    top: 40%; left: 4%;  animation-duration: 11s; animation-delay: 0.2s;  }
-.confetti--12 { width: 20px; height:  8px; background: var(--color-pink);    border-radius: 2px;    top: 50%; left: 95%; animation-duration: 8s;  animation-delay: 4.5s;  }
-
-/* Squares */
-.confetti--13 { width: 10px; height: 10px; background: var(--color-coral);   border-radius: 2px;    top: 88%; left: 55%; animation-duration: 9s;  animation-delay: 1.2s;  }
-.confetti--14 { width: 12px; height: 12px; background: var(--color-yellow);  border-radius: 2px;    top: 22%; left: 48%; animation-duration: 13s; animation-delay: 5s;    }
-.confetti--15 { width:  8px; height:  8px; background: var(--color-teal);    border-radius: 2px;    top: 65%; left: 42%; animation-duration: 7s;  animation-delay: 2.8s;  }
-
-/* Curls — thin tall pieces that rotate dramatically */
-.confetti--16 { width:  4px; height: 18px; background: var(--color-purple);  border-radius: 4px;    top: 35%; left: 78%; animation-duration: 10s; animation-delay: 0.6s;  }
-.confetti--17 { width:  4px; height: 22px; background: var(--color-yellow);  border-radius: 4px;    top: 72%; left: 62%; animation-duration: 12s; animation-delay: 3.2s;  }
-.confetti--18 { width:  4px; height: 16px; background: var(--color-coral);   border-radius: 4px;    top: 18%; left: 38%; animation-duration: 8s;  animation-delay: 1.8s;  }
-.confetti--19 { width:  4px; height: 20px; background: var(--color-green);   border-radius: 4px;    top: 82%; left: 8%;  animation-duration: 11s; animation-delay: 4.2s;  }
-.confetti--20 { width:  4px; height: 18px; background: var(--color-pink);    border-radius: 4px;    top: 45%; left: 55%; animation-duration: 9s;  animation-delay: 2.2s;  }
+.confetti--1  { width: 12px; height: 12px; background: var(--color-yellow); border-radius: 50%;  top: 8%;  left: 12%; animation-duration: 9s;  animation-delay: 0s;    }
+.confetti--2  { width: 10px; height: 10px; background: var(--color-coral);  border-radius: 50%;  top: 15%; left: 82%; animation-duration: 11s; animation-delay: 1.5s;  }
+.confetti--3  { width: 14px; height: 14px; background: var(--color-teal);   border-radius: 50%;  top: 55%; left: 7%;  animation-duration: 8s;  animation-delay: 3s;    }
+.confetti--4  { width:  8px; height:  8px; background: var(--color-purple); border-radius: 50%;  top: 70%; left: 88%; animation-duration: 10s; animation-delay: 0.5s;  }
+.confetti--5  { width: 12px; height: 12px; background: var(--color-green);  border-radius: 50%;  top: 30%; left: 92%; animation-duration: 13s; animation-delay: 4s;    }
+.confetti--6  { width:  9px; height:  9px; background: var(--color-pink);   border-radius: 50%;  top: 80%; left: 35%; animation-duration: 7s;  animation-delay: 2s;    }
+.confetti--7  { width: 10px; height: 22px; background: var(--color-yellow); border-radius: 2px;  top: 20%; left: 25%; animation-duration: 12s; animation-delay: 0.8s;  }
+.confetti--8  { width: 18px; height:  8px; background: var(--color-coral);  border-radius: 2px;  top: 60%; left: 70%; animation-duration: 9s;  animation-delay: 2.5s;  }
+.confetti--9  { width:  8px; height: 20px; background: var(--color-teal);   border-radius: 2px;  top: 10%; left: 60%; animation-duration: 14s; animation-delay: 1s;    }
+.confetti--10 { width: 16px; height:  7px; background: var(--color-purple); border-radius: 2px;  top: 75%; left: 18%; animation-duration: 10s; animation-delay: 3.5s;  }
+.confetti--11 { width: 10px; height: 24px; background: var(--color-green);  border-radius: 2px;  top: 40%; left: 4%;  animation-duration: 11s; animation-delay: 0.2s;  }
+.confetti--12 { width: 20px; height:  8px; background: var(--color-pink);   border-radius: 2px;  top: 50%; left: 95%; animation-duration: 8s;  animation-delay: 4.5s;  }
+.confetti--13 { width: 10px; height: 10px; background: var(--color-coral);  border-radius: 2px;  top: 88%; left: 55%; animation-duration: 9s;  animation-delay: 1.2s;  }
+.confetti--14 { width: 12px; height: 12px; background: var(--color-yellow); border-radius: 2px;  top: 22%; left: 48%; animation-duration: 13s; animation-delay: 5s;    }
+.confetti--15 { width:  8px; height:  8px; background: var(--color-teal);   border-radius: 2px;  top: 65%; left: 42%; animation-duration: 7s;  animation-delay: 2.8s;  }
+.confetti--16 { width:  4px; height: 18px; background: var(--color-purple); border-radius: 4px;  top: 35%; left: 78%; animation-duration: 10s; animation-delay: 0.6s;  }
+.confetti--17 { width:  4px; height: 22px; background: var(--color-yellow); border-radius: 4px;  top: 72%; left: 62%; animation-duration: 12s; animation-delay: 3.2s;  }
+.confetti--18 { width:  4px; height: 16px; background: var(--color-coral);  border-radius: 4px;  top: 18%; left: 38%; animation-duration: 8s;  animation-delay: 1.8s;  }
+.confetti--19 { width:  4px; height: 20px; background: var(--color-green);  border-radius: 4px;  top: 82%; left: 8%;  animation-duration: 11s; animation-delay: 4.2s;  }
+.confetti--20 { width:  4px; height: 18px; background: var(--color-pink);   border-radius: 4px;  top: 45%; left: 55%; animation-duration: 9s;  animation-delay: 2.2s;  }
 
 
 /* ============================================================
-   7. Sections
+   8. Sections
    ============================================================ */
 
 .section {
@@ -475,7 +464,7 @@ h1, h2, h3, h4 {
 
 
 /* ============================================================
-   8. Steps
+   9. How It Works Steps
    ============================================================ */
 
 .steps {
@@ -538,7 +527,7 @@ h1, h2, h3, h4 {
 
 
 /* ============================================================
-   9. Occasions
+   10. Occasions
    ============================================================ */
 
 .occasions {
@@ -568,7 +557,7 @@ h1, h2, h3, h4 {
 
 
 /* ============================================================
-   10. Pricing
+   11. Pricing
    ============================================================ */
 
 .pricing {
@@ -661,7 +650,7 @@ h1, h2, h3, h4 {
 
 
 /* ============================================================
-   11. Footer
+   12. Footer
    ============================================================ */
 
 .footer {
@@ -703,13 +692,14 @@ h1, h2, h3, h4 {
 
 
 /* ============================================================
-   12. Animations
+   13. Animations
    ============================================================ */
 
-@keyframes float {
-    0%   { transform: translateY(0px) rotate(0deg);   opacity: 0.6; }
-    50%  { transform: translateY(-30px) rotate(180deg); opacity: 0.3; }
-    100% { transform: translateY(0px) rotate(360deg); opacity: 0.6; }
+@keyframes confetti-fall {
+    0%   { opacity: 0; transform: translateY(-20px) rotate(0deg) scale(0.8); }
+    10%  { opacity: 0.85; }
+    90%  { opacity: 0.85; }
+    100% { opacity: 0; transform: translateY(100vh) rotate(720deg) scale(1.1); }
 }
 
 @keyframes flash-in {
@@ -722,41 +712,9 @@ h1, h2, h3, h4 {
     to   { opacity: 1; transform: translateY(0); }
 }
 
-.hero__text > * {
-    animation: card-rise 0.6s ease both;
-}
-
-.hero__heading    { animation-delay: 0.1s; }
-.hero__subheading { animation-delay: 0.25s; }
-.hero__actions    { animation-delay: 0.4s; }
-
-@keyframes confetti-fall {
-    0% {
-        opacity: 0;
-        transform: translateY(-20px) rotate(0deg) scale(0.8);
-    }
-    10% {
-        opacity: 0.85;
-    }
-    90% {
-        opacity: 0.85;
-    }
-    100% {
-        opacity: 0;
-        transform: translateY(100vh) rotate(720deg) scale(1.1);
-    }
-}
-
-@keyframes confetti-sway {
-    0%   { margin-left: 0px; }
-    25%  { margin-left: 30px; }
-    75%  { margin-left: -30px; }
-    100% { margin-left: 0px; }
-}
-
 
 /* ============================================================
-   Responsive
+   14. Responsive
    ============================================================ */
 
 @media (max-width: 1024px) {
@@ -771,7 +729,6 @@ h1, h2, h3, h4 {
 
 @media (max-width: 768px) {
     .hero__inner {
-        grid-template-columns: 1fr;
         text-align: center;
     }
 
@@ -782,17 +739,6 @@ h1, h2, h3, h4 {
 
     .hero__actions {
         justify-content: center;
-    }
-
-    .hero__cards {
-        height: 240px;
-        width: 100%;
-    }
-
-    .occasion-card {
-        width: 75px;
-        height: 105px;
-        font-size: 2rem;
     }
 
     .steps {
@@ -807,49 +753,4 @@ h1, h2, h3, h4 {
         flex-direction: column;
         text-align: center;
     }
-}
-
-.hero__inner {
-    position: relative;
-    z-index: 1;
-    max-width: 860px;
-    margin: 0 auto;
-    padding: var(--space-xl) var(--space-lg);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-height: calc(100vh - var(--nav-height));
-}
-
-.hero__center {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    gap: var(--space-lg);
-}
-
-.hero__logo {
-    width: 100%;
-    max-width: 580px;
-    height: auto;
-    animation: card-rise 0.7s ease both;
-}
-
-.hero__subheading {
-    font-size: 1.2rem;
-    color: rgba(255,255,255,0.75);
-    max-width: 520px;
-    line-height: 1.7;
-    animation: card-rise 0.6s ease both;
-    animation-delay: 0.2s;
-}
-
-.hero__actions {
-    display: flex;
-    gap: var(--space-md);
-    flex-wrap: wrap;
-    justify-content: center;
-    animation: card-rise 0.6s ease both;
-    animation-delay: 0.4s;
 }

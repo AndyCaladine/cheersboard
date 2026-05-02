@@ -1,0 +1,164 @@
+{% extends "base.html" %}
+{% block title %}Create Account — Step 4 of 5{% endblock %}
+{% block body_class %}page--register{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/pages/register.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="register">
+    <div class="register__inner">
+
+        <!-- Progress bar -->
+        <div class="progress">
+            <div class="progress__steps">
+                {% set labels = ['About You', 'Address', 'Security', 'Preferences', 'Review'] %}
+                {% for i in range(1, 6) %}
+                <div class="progress__step {% if i < step %}is-complete{% elif i == step %}is-active{% endif %}">
+                    <div class="progress__dot">{% if i < step %}✓{% else %}{{ i }}{% endif %}</div>
+                    <div class="progress__label">{{ labels[i-1] }}</div>
+                </div>
+                {% endfor %}
+            </div>
+            <div class="progress__bar-track">
+                <div class="progress__bar-fill" style="width: {{ ((step - 1) / 4) * 100 }}%"></div>
+            </div>
+        </div>
+
+        <!-- Step card -->
+        <div class="step-card">
+            <div class="step-card__header">
+                <span class="step-card__icon">🎛️</span>
+                <h1 class="step-card__title">Your preferences</h1>
+                <p class="step-card__subtitle">Almost there — just a few last things.</p>
+            </div>
+
+            <form method="POST" action="{{ url_for('auth.register_step4') }}" novalidate>
+
+                <!-- Communication preference -->
+                <div class="toggle-group">
+                    <span class="toggle-group__label">
+                        How would you like us to contact you?
+                    </span>
+                    {% if errors.get('communication_preference') %}
+                    <p class="form-error form-error--group">{{ errors.communication_preference }}</p>
+                    {% endif %}
+                    <div class="toggle-options">
+                        {% set pref = form_data.get('communication_preference', 'email') %}
+                        <div class="toggle-option">
+                            <input type="radio" id="pref_email" name="communication_preference"
+                                value="email" {% if pref == 'email' %}checked{% endif %}>
+                            <label class="toggle-option__label" for="pref_email">📧 Email</label>
+                        </div>
+                        <div class="toggle-option">
+                            <input type="radio" id="pref_sms" name="communication_preference"
+                                value="sms" {% if pref == 'sms' %}checked{% endif %}>
+                            <label class="toggle-option__label" for="pref_sms">💬 SMS</label>
+                        </div>
+                        <div class="toggle-option">
+                            <input type="radio" id="pref_both" name="communication_preference"
+                                value="both" {% if pref == 'both' %}checked{% endif %}>
+                            <label class="toggle-option__label" for="pref_both">📧💬 Both</label>
+                        </div>
+                        <div class="toggle-option">
+                            <input type="radio" id="pref_none" name="communication_preference"
+                                value="none" {% if pref == 'none' %}checked{% endif %}>
+                            <label class="toggle-option__label" for="pref_none">🔕 None</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Optional opt-ins -->
+                <div class="form-group">
+                    <span class="form-label" style="display:block; margin-bottom: 0.75rem;">
+                        Notification preferences
+                    </span>
+
+                    <label class="agreement" for="notifications_opt_in">
+                        <input type="checkbox" id="notifications_opt_in" name="notifications_opt_in"
+                            value="1" {% if form_data.get('notifications_opt_in', '1') != '0' %}checked{% endif %}>
+                        <div class="agreement__box"></div>
+                        <div class="agreement__text">
+                            <strong>Board notifications</strong><br>
+                            Notify me when someone leaves a message on my boards.
+                        </div>
+                    </label>
+
+                    <label class="agreement" for="marketing_opt_in">
+                        <input type="checkbox" id="marketing_opt_in" name="marketing_opt_in"
+                            value="1" {% if form_data.get('marketing_opt_in') == '1' %}checked{% endif %}>
+                        <div class="agreement__box"></div>
+                        <div class="agreement__text">
+                            <strong>News and updates</strong><br>
+                            Occasionally send me news about CheersBoard features and offers.
+                        </div>
+                    </label>
+                </div>
+
+                <!-- Required legal agreements -->
+                <div class="form-group">
+                    <span class="form-label" style="display:block; margin-bottom: 0.75rem;">
+                        Legal agreements <span class="form-label__required">*</span>
+                    </span>
+
+                    <label class="agreement agreement--required {% if errors.get('terms_agreed') %}agreement--invalid{% endif %}" for="terms_agreed">
+                        <input type="checkbox" id="terms_agreed" name="terms_agreed"
+                            value="1" {% if form_data.get('terms_agreed') == '1' %}checked{% endif %}>
+                        <div class="agreement__box"></div>
+                        <div class="agreement__text">
+                            I agree to the <a href="/terms" target="_blank" rel="noopener">Terms &amp; Conditions</a>.
+                        </div>
+                    </label>
+                    {% if errors.get('terms_agreed') %}
+                    <p class="form-error">{{ errors.terms_agreed }}</p>
+                    {% endif %}
+
+                    <label class="agreement agreement--required {% if errors.get('gdpr_agreed') %}agreement--invalid{% endif %}" for="gdpr_agreed">
+                        <input type="checkbox" id="gdpr_agreed" name="gdpr_agreed"
+                            value="1" {% if form_data.get('gdpr_agreed') == '1' %}checked{% endif %}>
+                        <div class="agreement__box"></div>
+                        <div class="agreement__text">
+                            I have read and understood the <a href="/privacy" target="_blank" rel="noopener">Privacy Policy</a>.
+                        </div>
+                    </label>
+                    {% if errors.get('gdpr_agreed') %}
+                    <p class="form-error">{{ errors.gdpr_agreed }}</p>
+                    {% endif %}
+                </div>
+
+                <div class="form-actions">
+                    <a href="{{ url_for('auth.register_step3') }}" class="btn btn--ghost btn--back">← Back</a>
+                    <button type="submit" class="btn btn--primary">Review my details →</button>
+                </div>
+
+            </form>
+        </div>
+
+        <p class="register__login-link">
+            Already have an account? <a href="{{ url_for('auth.login') }}">Log in here</a>
+        </p>
+
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // ============================================================
+    // Checkbox visual toggle
+    // ============================================================
+    document.querySelectorAll('.agreement').forEach(agreement => {
+        const checkbox = agreement.querySelector('input[type="checkbox"]');
+        const box = agreement.querySelector('.agreement__box');
+
+        const update = () => {
+            const checked = checkbox.checked;
+            box.textContent = checked ? '✓' : '';
+            agreement.classList.toggle('is-checked', checked);
+        };
+
+        checkbox.addEventListener('change', update);
+        update();
+    });
+</script>
+{% endblock %}

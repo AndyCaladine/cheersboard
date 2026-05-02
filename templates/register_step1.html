@@ -1,0 +1,164 @@
+{% extends "base.html" %}
+{% block title %}Create Account — Step 1 of 5{% endblock %}
+{% block body_class %}page--register{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/pages/register.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="register">
+    <div class="register__inner">
+
+        <!-- Progress bar -->
+        <div class="progress">
+            <div class="progress__steps">
+                {% set labels = ['About You', 'Address', 'Security', 'Preferences', 'Review'] %}
+                {% for i in range(1, 6) %}
+                <div class="progress__step {% if i < step %}is-complete{% elif i == step %}is-active{% endif %}">
+                    <div class="progress__dot">{% if i < step %}✓{% else %}{{ i }}{% endif %}</div>
+                    <div class="progress__label">{{ labels[i-1] }}</div>
+                </div>
+                {% endfor %}
+            </div>
+            <div class="progress__bar-track">
+                <div class="progress__bar-fill" style="width: {{ ((step - 1) / 4) * 100 }}%"></div>
+            </div>
+        </div>
+
+        <!-- Step card -->
+        <div class="step-card">
+            <div class="step-card__header">
+                <span class="step-card__icon">👋</span>
+                <h1 class="step-card__title">Let's get to know you</h1>
+                <p class="step-card__subtitle">Tell us a little about yourself to get started.</p>
+            </div>
+
+            <form method="POST" action="{{ url_for('auth.register_step1') }}" novalidate>
+
+                <!-- Name -->
+                <div class="form-group form-group--half">
+                    <div>
+                        <label class="form-label" for="first_name">
+                            First name <span class="form-label__required">*</span>
+                        </label>
+                        <input
+                            class="form-input {% if errors.get('first_name') %}form-input--error{% endif %}"
+                            type="text"
+                            id="first_name"
+                            name="first_name"
+                            value="{{ form_data.get('first_name', '') }}"
+                            placeholder="Jane"
+                            autocomplete="given-name"
+                        >
+                        {% if errors.get('first_name') %}
+                        <p class="form-error">{{ errors.first_name }}</p>
+                        {% endif %}
+                    </div>
+                    <div>
+                        <label class="form-label" for="last_name">
+                            Last name <span class="form-label__required">*</span>
+                        </label>
+                        <input
+                            class="form-input {% if errors.get('last_name') %}form-input--error{% endif %}"
+                            type="text"
+                            id="last_name"
+                            name="last_name"
+                            value="{{ form_data.get('last_name', '') }}"
+                            placeholder="Smith"
+                            autocomplete="family-name"
+                        >
+                        {% if errors.get('last_name') %}
+                        <p class="form-error">{{ errors.last_name }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Email -->
+                <div class="form-group">
+                    <label class="form-label" for="email">
+                        Email address <span class="form-label__required">*</span>
+                    </label>
+                    <input
+                        class="form-input {% if errors.get('email') %}form-input--error{% endif %}"
+                        type="email"
+                        id="email"
+                        name="email"
+                        value="{{ form_data.get('email', '') }}"
+                        placeholder="jane@example.com"
+                        autocomplete="email"
+                    >
+                    {% if errors.get('email') %}
+                    <p class="form-error">{{ errors.email }}</p>
+                    {% endif %}
+                </div>
+
+                <!-- Date of birth -->
+                <div class="form-group">
+                    <label class="form-label">
+                        Date of birth <span class="form-label__required">*</span>
+                    </label>
+                    <div class="dob-selects {% if errors.get('date_of_birth') %}dob-selects--error{% endif %}">
+
+                        <!-- Day -->
+                        <select class="form-select" name="dob_day" id="dob_day" autocomplete="bday-day">
+                            <option value="" disabled {% if not form_data.get('dob_day') %}selected{% endif %}>Day</option>
+                            {% for d in range(1, 32) %}
+                            <option value="{{ d }}" {% if form_data.get('dob_day')|int == d %}selected{% endif %}>{{ d }}</option>
+                            {% endfor %}
+                        </select>
+
+                        <!-- Month -->
+                        <select class="form-select" name="dob_month" id="dob_month" autocomplete="bday-month">
+                            <option value="" disabled {% if not form_data.get('dob_month') %}selected{% endif %}>Month</option>
+                            {% set months = ['January','February','March','April','May','June','July','August','September','October','November','December'] %}
+                            {% for m in months %}
+                            <option value="{{ loop.index }}" {% if form_data.get('dob_month')|int == loop.index %}selected{% endif %}>{{ m }}</option>
+                            {% endfor %}
+                        </select>
+
+                        <!-- Year -->
+                        <select class="form-select" name="dob_year" id="dob_year" autocomplete="bday-year">
+                            <option value="" disabled {% if not form_data.get('dob_year') %}selected{% endif %}>Year</option>
+                            {% set current_year = now.year if now else 2025 %}
+                            {% for y in range(current_year - 13, current_year - 120, -1) %}
+                            <option value="{{ y }}" {% if form_data.get('dob_year')|int == y %}selected{% endif %}>{{ y }}</option>
+                            {% endfor %}
+                        </select>
+
+                    </div>
+                    {% if errors.get('date_of_birth') %}
+                    <p class="form-error">{{ errors.date_of_birth }}</p>
+                    {% endif %}
+                    <p class="form-hint">You must be at least 13 years old to register.</p>
+                </div>
+
+                <!-- Mobile -->
+                <div class="form-group">
+                    <label class="form-label form-label--optional" for="mobile_number">
+                        Mobile number
+                    </label>
+                    <input
+                        class="form-input"
+                        type="tel"
+                        id="mobile_number"
+                        name="mobile_number"
+                        value="{{ form_data.get('mobile_number', '') }}"
+                        placeholder="+44 7700 900000"
+                        autocomplete="tel"
+                    >
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn--primary">Continue →</button>
+                </div>
+
+            </form>
+        </div>
+
+        <p class="register__login-link">
+            Already have an account? <a href="{{ url_for('auth.login') }}">Log in here</a>
+        </p>
+
+    </div>
+</div>
+{% endblock %}

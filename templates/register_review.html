@@ -1,0 +1,193 @@
+{% extends "base.html" %}
+{% block title %}Create Account — Review your details{% endblock %}
+{% block body_class %}page--register{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/pages/register.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="register">
+    <div class="register__inner">
+
+        <!-- Progress bar -->
+        <div class="progress">
+            <div class="progress__steps">
+                {% set labels = ['About You', 'Address', 'Security', 'Preferences', 'Review'] %}
+                {% for i in range(1, 6) %}
+                <div class="progress__step {% if i < step %}is-complete{% elif i == step %}is-active{% endif %}">
+                    <div class="progress__dot">{% if i < step %}✓{% else %}{{ i }}{% endif %}</div>
+                    <div class="progress__label">{{ labels[i-1] }}</div>
+                </div>
+                {% endfor %}
+            </div>
+            <div class="progress__bar-track">
+                <div class="progress__bar-fill" style="width: {{ ((step - 1) / 4) * 100 }}%"></div>
+            </div>
+        </div>
+
+        <!-- Step card -->
+        <div class="step-card">
+            <div class="step-card__header">
+                <span class="step-card__icon">🎉</span>
+                <h1 class="step-card__title">Almost done!</h1>
+                <p class="step-card__subtitle">Check everything looks right before we create your account.</p>
+            </div>
+
+            <!-- About You -->
+            <div class="review-section">
+                <div class="review-section__header">
+                    <div class="review-section__title">👋 About You</div>
+                    <a href="{{ url_for('auth.register_step1') }}" class="review-section__edit">Edit</a>
+                </div>
+                <div class="review-section__body">
+                    <div class="review-row">
+                        <span class="review-row__label">Name</span>
+                        <span class="review-row__value">{{ s1.first_name }} {{ s1.last_name }}</span>
+                    </div>
+                    <div class="review-row">
+                        <span class="review-row__label">Email</span>
+                        <span class="review-row__value">{{ s1.email }}</span>
+                    </div>
+                    <div class="review-row">
+                        <span class="review-row__label">Date of birth</span>
+                        <span class="review-row__value">{{ s1.date_of_birth | format_date }}</span>
+                    </div>
+                    <div class="review-row">
+                        <span class="review-row__label">Mobile</span>
+                        <span class="review-row__value {% if not s1.mobile_number %}review-row__value--muted{% endif %}">
+                            {{ s1.mobile_number if s1.mobile_number else 'Not provided' }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Address -->
+            <div class="review-section">
+                <div class="review-section__header">
+                    <div class="review-section__title">🏠 Address</div>
+                    <a href="{{ url_for('auth.register_step2') }}" class="review-section__edit">Edit</a>
+                </div>
+                <div class="review-section__body">
+                    <div class="review-row">
+                        <span class="review-row__label">Line 1</span>
+                        <span class="review-row__value">{{ s2.address_line_1 }}</span>
+                    </div>
+                    {% if s2.address_line_2 %}
+                    <div class="review-row">
+                        <span class="review-row__label">Line 2</span>
+                        <span class="review-row__value">{{ s2.address_line_2 }}</span>
+                    </div>
+                    {% endif %}
+                    <div class="review-row">
+                        <span class="review-row__label">City</span>
+                        <span class="review-row__value">{{ s2.city }}</span>
+                    </div>
+                    {% if s2.county %}
+                    <div class="review-row">
+                        <span class="review-row__label">County</span>
+                        <span class="review-row__value">{{ s2.county }}</span>
+                    </div>
+                    {% endif %}
+                    <div class="review-row">
+                        <span class="review-row__label">Postcode</span>
+                        <span class="review-row__value">{{ s2.postcode }}</span>
+                    </div>
+                    <div class="review-row">
+                        <span class="review-row__label">Country</span>
+                        <span class="review-row__value">{{ s2.country }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Security -->
+            <div class="review-section">
+                <div class="review-section__header">
+                    <div class="review-section__title">🔐 Security</div>
+                    <a href="{{ url_for('auth.register_step3') }}" class="review-section__edit">Edit</a>
+                </div>
+                <div class="review-section__body">
+                    <div class="review-row">
+                        <span class="review-row__label">Password</span>
+                        <span class="review-row__value">••••••••</span>
+                    </div>
+                    <div class="review-row">
+                        <span class="review-row__label">Security question</span>
+                        <span class="review-row__value">{{ s3.security_question }}</span>
+                    </div>
+                    <div class="review-row">
+                        <span class="review-row__label">Security answer</span>
+                        <span class="review-row__value">••••••••</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Preferences -->
+            <div class="review-section">
+                <div class="review-section__header">
+                    <div class="review-section__title">🎛️ Preferences</div>
+                    <a href="{{ url_for('auth.register_step4') }}" class="review-section__edit">Edit</a>
+                </div>
+                <div class="review-section__body">
+                    <div class="review-row">
+                        <span class="review-row__label">Contact preference</span>
+                        <span class="review-row__value">{{ s4.communication_preference | capitalize }}</span>
+                    </div>
+                    <div class="review-row">
+                        <span class="review-row__label">Board notifications</span>
+                        <span class="review-row__value">{{ 'Yes' if s4.notifications_opt_in else 'No' }}</span>
+                    </div>
+                    <div class="review-row">
+                        <span class="review-row__label">Marketing emails</span>
+                        <span class="review-row__value">{{ 'Yes' if s4.marketing_opt_in else 'No' }}</span>
+                    </div>
+                    <div class="review-row">
+                        <span class="review-row__label">Terms agreed</span>
+                        <span class="review-row__value">✓ Yes</span>
+                    </div>
+                    <div class="review-row">
+                        <span class="review-row__label">Privacy policy</span>
+                        <span class="review-row__value">✓ Yes</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Voucher and submit -->
+            <form method="POST" action="{{ url_for('auth.register_review') }}" novalidate>
+
+                <div class="form-group voucher-group">
+                    <label class="form-label form-label--optional" for="voucher_code">
+                        Got a voucher code?
+                    </label>
+                    <div class="voucher">
+                        <input
+                            class="form-input"
+                            type="text"
+                            id="voucher_code"
+                            name="voucher_code"
+                            value="{{ session.get('pending_voucher', '') }}"
+                            placeholder="e.g. CELEBRATE10"
+                            maxlength="32"
+                        >
+                        <button type="button" class="voucher__btn" disabled>Apply</button>
+                    </div>
+                    <p class="voucher__note">
+                        Voucher codes are applied when you create your first board.
+                        Enter it here and we will remember it for you.
+                    </p>
+                </div>
+
+                <div class="form-actions">
+                    <a href="{{ url_for('auth.register_step4') }}" class="btn btn--ghost btn--back">← Back</a>
+                    <button type="submit" class="btn btn--primary">Create my account 🎉</button>
+                </div>
+
+            </form>
+        </div>
+
+        <p class="register__login-link">
+            Already have an account? <a href="{{ url_for('auth.login') }}">Log in here</a>
+        </p>
+
+    </div>
+</div>
+{% endblock %}

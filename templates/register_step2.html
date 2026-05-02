@@ -1,0 +1,166 @@
+{% extends "base.html" %}
+{% block title %}Create Account — Step 2 of 5{% endblock %}
+{% block body_class %}page--register{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/pages/register.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="register">
+    <div class="register__inner">
+
+        <!-- Progress bar -->
+        <div class="progress">
+            <div class="progress__steps">
+                {% set labels = ['About You', 'Address', 'Security', 'Preferences', 'Review'] %}
+                {% for i in range(1, 6) %}
+                <div class="progress__step {% if i < step %}is-complete{% elif i == step %}is-active{% endif %}">
+                    <div class="progress__dot">{% if i < step %}✓{% else %}{{ i }}{% endif %}</div>
+                    <div class="progress__label">{{ labels[i-1] }}</div>
+                </div>
+                {% endfor %}
+            </div>
+            <div class="progress__bar-track">
+                <div class="progress__bar-fill" style="width: {{ ((step - 1) / 4) * 100 }}%"></div>
+            </div>
+        </div>
+
+        <!-- Step card -->
+        <div class="step-card">
+            <div class="step-card__header">
+                <span class="step-card__icon">🏠</span>
+                <h1 class="step-card__title">Your address</h1>
+                <p class="step-card__subtitle">We need this for billing and account verification.</p>
+            </div>
+
+            <form method="POST" action="{{ url_for('auth.register_step2') }}" novalidate>
+
+                <!-- Address line 1 -->
+                <div class="form-group">
+                    <label class="form-label" for="address_line_1">
+                        Address line 1 <span class="form-label__required">*</span>
+                    </label>
+                    <input
+                        class="form-input {% if errors.get('address_line_1') %}form-input--error{% endif %}"
+                        type="text"
+                        id="address_line_1"
+                        name="address_line_1"
+                        value="{{ form_data.get('address_line_1', '') }}"
+                        placeholder="123 Celebration Street"
+                        autocomplete="address-line1"
+                    >
+                    {% if errors.get('address_line_1') %}
+                    <p class="form-error">{{ errors.address_line_1 }}</p>
+                    {% endif %}
+                </div>
+
+                <!-- Address line 2 -->
+                <div class="form-group">
+                    <label class="form-label form-label--optional" for="address_line_2">
+                        Address line 2
+                    </label>
+                    <input
+                        class="form-input"
+                        type="text"
+                        id="address_line_2"
+                        name="address_line_2"
+                        value="{{ form_data.get('address_line_2', '') }}"
+                        placeholder="Flat, suite, unit..."
+                        autocomplete="address-line2"
+                    >
+                </div>
+
+                <!-- City and county -->
+                <div class="form-group form-group--half">
+                    <div>
+                        <label class="form-label" for="city">
+                            City or town <span class="form-label__required">*</span>
+                        </label>
+                        <input
+                            class="form-input {% if errors.get('city') %}form-input--error{% endif %}"
+                            type="text"
+                            id="city"
+                            name="city"
+                            value="{{ form_data.get('city', '') }}"
+                            placeholder="Birmingham"
+                            autocomplete="address-level2"
+                        >
+                        {% if errors.get('city') %}
+                        <p class="form-error">{{ errors.city }}</p>
+                        {% endif %}
+                    </div>
+                    <div>
+                        <label class="form-label form-label--optional" for="county">
+                            County
+                        </label>
+                        <input
+                            class="form-input"
+                            type="text"
+                            id="county"
+                            name="county"
+                            value="{{ form_data.get('county', '') }}"
+                            placeholder="West Midlands"
+                            autocomplete="address-level1"
+                        >
+                    </div>
+                </div>
+
+                <!-- Postcode and country -->
+                <div class="form-group form-group--half">
+                    <div>
+                        <label class="form-label" for="postcode">
+                            Postcode <span class="form-label__required">*</span>
+                        </label>
+                        <input
+                            class="form-input {% if errors.get('postcode') %}form-input--error{% endif %}"
+                            type="text"
+                            id="postcode"
+                            name="postcode"
+                            value="{{ form_data.get('postcode', '') }}"
+                            placeholder="B1 1AA"
+                            autocomplete="postal-code"
+                        >
+                        {% if errors.get('postcode') %}
+                        <p class="form-error">{{ errors.postcode }}</p>
+                        {% endif %}
+                    </div>
+                    <div>
+                        <label class="form-label" for="country">
+                            Country <span class="form-label__required">*</span>
+                        </label>
+                        <select
+                            class="form-select {% if errors.get('country') %}form-input--error{% endif %}"
+                            id="country"
+                            name="country"
+                            autocomplete="country-name"
+                        >
+                            {% set selected = form_data.get('country', 'United Kingdom') %}
+                            <option value="United Kingdom" {% if selected == 'United Kingdom' %}selected{% endif %}>United Kingdom</option>
+                            <option value="Ireland" {% if selected == 'Ireland' %}selected{% endif %}>Ireland</option>
+                            <option value="United States" {% if selected == 'United States' %}selected{% endif %}>United States</option>
+                            <option value="Canada" {% if selected == 'Canada' %}selected{% endif %}>Canada</option>
+                            <option value="Australia" {% if selected == 'Australia' %}selected{% endif %}>Australia</option>
+                            <option value="New Zealand" {% if selected == 'New Zealand' %}selected{% endif %}>New Zealand</option>
+                            <option value="Other" {% if selected == 'Other' %}selected{% endif %}>Other</option>
+                        </select>
+                        {% if errors.get('country') %}
+                        <p class="form-error">{{ errors.country }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <a href="{{ url_for('auth.register_step1') }}" class="btn btn--ghost btn--back">← Back</a>
+                    <button type="submit" class="btn btn--primary">Continue →</button>
+                </div>
+
+            </form>
+        </div>
+
+        <p class="register__login-link">
+            Already have an account? <a href="{{ url_for('auth.login') }}">Log in here</a>
+        </p>
+
+    </div>
+</div>
+{% endblock %}
