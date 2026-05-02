@@ -4,35 +4,66 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}CheersBoard{% endblock %}</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
-</head>
-<body>
 
-    <nav>
-        <a href="/" class="nav-logo">CheersBoard</a>
-        <div class="nav-links">
-            {% if current_user.is_authenticated %}
-                <span>Hi {{ current_user.first_name }}</span>
-                <a href="{{ url_for('auth.logout') }}">Log out</a>
-            {% else %}
-                <a href="{{ url_for('auth.login') }}">Log in</a>
-                <a href="{{ url_for('auth.register') }}">Register</a>
-            {% endif %}
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,400;0,600;0,700;0,800;0,900;1,400&family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/base/main.css') }}">
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="{% block body_class %}{% endblock %}">
+
+    <!-- Navigation -->
+    <nav class="nav">
+        <div class="nav__inner">
+            <a href="{{ url_for('home') }}" class="nav__logo">
+                <img src="{{ url_for('static', filename='images/favicon_light.PNG') }}" alt="CheersBoard" class="nav__logo-img">
+            </a>
+            <div class="nav__links">
+                {% if session.get("user_id") %}
+                    <a href="{{ url_for('boards.dashboard') }}" class="nav__link">My Boards</a>
+                    <a href="{{ url_for('auth.logout') }}" class="nav__link">Log Out</a>
+                {% else %}
+                    <a href="{{ url_for('auth.login') }}" class="nav__link">Log In</a>
+                    <a href="{{ url_for('auth.register') }}" class="btn btn--primary">Get Started</a>
+                {% endif %}
+            </div>
         </div>
     </nav>
 
-    <main>
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
+    <!-- Flash messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="flash-container">
                 {% for category, message in messages %}
-                    <div class="flash flash-{{ category }}">{{ message }}</div>
+                    <div class="flash flash--{{ category }}">
+                        <span>{{ message }}</span>
+                        <button class="flash__close" onclick="this.parentElement.remove()">&#x2715;</button>
+                    </div>
                 {% endfor %}
-            {% endif %}
-        {% endwith %}
+            </div>
+        {% endif %}
+    {% endwith %}
 
+    <!-- Main content -->
+    <main>
         {% block content %}{% endblock %}
     </main>
 
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer__inner">
+            <p class="footer__copy">&copy; {{ now.year if now else "2025" }} CheersBoard &mdash; Designed &amp; built by <a href="https://andycaladine.co.uk" class="footer__link" target="_blank" rel="noopener">Andy Caladine</a></p>            <div class="footer__links">
+                <a href="/privacy" class="footer__link">Privacy Policy</a>
+                <a href="/terms" class="footer__link">Terms &amp; Conditions</a>
+            </div>
+        </div>
+    </footer>
+
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    {% block extra_js %}{% endblock %}
 </body>
 </html>

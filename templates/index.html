@@ -1,0 +1,205 @@
+{% extends "base.html" %}
+
+{% block title %}CheersBoard — Share Joy. Celebrate Life. Together.{% endblock %}
+{% block body_class %}page--index{% endblock %}
+
+{% block content %}
+
+<!-- ============================================================
+     Hero
+     ============================================================ -->
+<section class="hero">
+    <div class="hero__confetti" aria-hidden="true">
+<div class="hero__confetti" aria-hidden="true">
+    <span class="confetti confetti--1"></span>
+    <span class="confetti confetti--2"></span>
+    <span class="confetti confetti--3"></span>
+    <span class="confetti confetti--4"></span>
+    <span class="confetti confetti--5"></span>
+    <span class="confetti confetti--6"></span>
+    <span class="confetti confetti--7"></span>
+    <span class="confetti confetti--8"></span>
+    <span class="confetti confetti--9"></span>
+    <span class="confetti confetti--10"></span>
+    <span class="confetti confetti--11"></span>
+    <span class="confetti confetti--12"></span>
+    <span class="confetti confetti--13"></span>
+    <span class="confetti confetti--14"></span>
+    <span class="confetti confetti--15"></span>
+    <span class="confetti confetti--16"></span>
+    <span class="confetti confetti--17"></span>
+    <span class="confetti confetti--18"></span>
+    <span class="confetti confetti--19"></span>
+    <span class="confetti confetti--20"></span>
+</div>
+    </div>
+        <div class="hero__inner">
+            <div class="hero__confetti" aria-hidden="true">
+<div class="hero__confetti" aria-hidden="true">
+    <span class="confetti confetti--1"></span>
+    <span class="confetti confetti--2"></span>
+    <span class="confetti confetti--3"></span>
+    <span class="confetti confetti--4"></span>
+    <span class="confetti confetti--5"></span>
+    <span class="confetti confetti--6"></span>
+    <span class="confetti confetti--7"></span>
+    <span class="confetti confetti--8"></span>
+    <span class="confetti confetti--9"></span>
+    <span class="confetti confetti--10"></span>
+    <span class="confetti confetti--11"></span>
+    <span class="confetti confetti--12"></span>
+    <span class="confetti confetti--13"></span>
+    <span class="confetti confetti--14"></span>
+    <span class="confetti confetti--15"></span>
+    <span class="confetti confetti--16"></span>
+    <span class="confetti confetti--17"></span>
+    <span class="confetti confetti--18"></span>
+    <span class="confetti confetti--19"></span>
+    <span class="confetti confetti--20"></span>
+</div>
+            </div>
+            <div class="hero__center">
+                <img src="{{ url_for('static', filename='images/logo_dark.PNG') }}" alt="CheersBoard" class="hero__logo">
+                <p class="hero__subheading">
+                    Create a shared digital board for any occasion. Share a link, collect messages from anyone — no app required. Then keep it forever.
+                </p>
+                <div class="hero__actions">
+                    <a href="{{ url_for('auth.register') }}" class="btn btn--primary btn--lg">Create a Board</a>
+                    <a href="#how-it-works" class="btn btn--ghost btn--lg">See How It Works</a>
+                </div>
+            </div>
+        </div>        
+    </div>
+</section>
+
+
+<!-- ============================================================
+     How it works
+     ============================================================ -->
+<section class="section section--light" id="how-it-works">
+    <div class="section__inner">
+        <h2 class="section__heading">How it works</h2>
+        <p class="section__subheading">Three steps to a board full of love.</p>
+        <div class="steps">
+            <div class="step">
+                <div class="step__number">1</div>
+                <div class="step__icon">✨</div>
+                <h3 class="step__title">Create your board</h3>
+                <p class="step__body">Pick an occasion, choose a theme, and set up your board in minutes. Name it, customise it, make it yours.</p>
+            </div>
+            <div class="step">
+                <div class="step__number">2</div>
+                <div class="step__icon">🔗</div>
+                <h3 class="step__title">Share the link</h3>
+                <p class="step__body">Send your unique board link to friends, family, and colleagues. They don't need an account — just open and sign.</p>
+            </div>
+            <div class="step">
+                <div class="step__number">3</div>
+                <div class="step__icon">🎉</div>
+                <h3 class="step__title">Celebrate together</h3>
+                <p class="step__body">Watch the messages roll in. Share the finished board, display it at the party, or keep it as a memory forever.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<!-- ============================================================
+     Occasions
+     ============================================================ -->
+<section class="section section--dark">
+    <div class="section__inner">
+        <h2 class="section__heading section__heading--light">Every occasion deserves a board</h2>
+        <p class="section__subheading section__subheading--light">From big milestones to everyday moments worth celebrating.</p>
+        <div class="occasions">
+            <div class="occasion-pill">🎂 Birthdays</div>
+            <div class="occasion-pill">💍 Weddings</div>
+            <div class="occasion-pill">👶 New Arrivals</div>
+            <div class="occasion-pill">🎓 Graduations</div>
+            <div class="occasion-pill">💼 Retirements</div>
+            <div class="occasion-pill">🏠 New Homes</div>
+            <div class="occasion-pill">🥂 Engagements</div>
+            <div class="occasion-pill">🌟 Promotions</div>
+            <div class="occasion-pill">🎄 Holidays</div>
+            <div class="occasion-pill">💛 Just Because</div>
+        </div>
+    </div>
+</section>
+
+
+<!-- ============================================================
+     Pricing
+     ============================================================ -->
+<section class="section section--light" id="pricing">
+    <div class="section__inner">
+        <h2 class="section__heading">Simple, honest pricing</h2>
+        <p class="section__subheading">Pay once per board. No subscriptions, no surprises.</p>
+        <div class="pricing">
+
+            <div class="pricing-card">
+                <div class="pricing-card__tier">Free</div>
+                <div class="pricing-card__price">£0</div>
+                <ul class="pricing-card__features">
+                    <li>Up to 10 messages</li>
+                    <li>1 free theme</li>
+                    <li>Shareable link</li>
+                    <li>Basic board view</li>
+                </ul>
+                <a href="{{ url_for('auth.register') }}" class="btn btn--outline">Get Started Free</a>
+            </div>
+
+            <div class="pricing-card">
+                <div class="pricing-card__tier">Lite</div>
+                <div class="pricing-card__price">£4.99</div>
+                <ul class="pricing-card__features">
+                    <li>Up to 30 messages</li>
+                    <li>More themes</li>
+                    <li>Shareable link &amp; QR code</li>
+                    <li>PDF export</li>
+                </ul>
+                <a href="{{ url_for('auth.register') }}" class="btn btn--outline">Choose Lite</a>
+            </div>
+
+            <div class="pricing-card pricing-card--featured">
+                <div class="pricing-card__badge">Most Popular</div>
+                <div class="pricing-card__tier">Premium</div>
+                <div class="pricing-card__price">£9.99</div>
+                <ul class="pricing-card__features">
+                    <li>Unlimited messages</li>
+                    <li>All premium themes</li>
+                    <li>Shareable link &amp; QR code</li>
+                    <li>PDF export</li>
+                    <li>Message moderation</li>
+                </ul>
+                <a href="{{ url_for('auth.register') }}" class="btn btn--primary">Choose Premium</a>
+            </div>
+
+            <div class="pricing-card">
+                <div class="pricing-card__tier">Event</div>
+                <div class="pricing-card__price">£19.99</div>
+                <ul class="pricing-card__features">
+                    <li>Everything in Premium</li>
+                    <li>Live slideshow mode</li>
+                    <li>OBS browser source</li>
+                    <li>Embed on any website</li>
+                </ul>
+                <a href="{{ url_for('auth.register') }}" class="btn btn--outline">Choose Event</a>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+
+<!-- ============================================================
+     CTA
+     ============================================================ -->
+<section class="section section--cta">
+    <div class="section__inner section__inner--narrow">
+        <h2 class="section__heading section__heading--light">Ready to make someone's day?</h2>
+        <p class="section__subheading section__subheading--light">Create your first board in minutes. Free to start, no card required.</p>
+        <a href="{{ url_for('auth.register') }}" class="btn btn--primary btn--lg">Create Your Board</a>
+    </div>
+</section>
+
+{% endblock %}

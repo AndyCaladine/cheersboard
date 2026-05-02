@@ -1,28 +1,7 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
 {% block title %}Register — CheersBoard{% endblock %}
-
 {% block content %}
-<div class="auth-container">
-    <h1>Create your account</h1>
-    <form method="POST" action="{{ url_for('auth.register') }}">
-        <div class="form-group">
-            <label for="first_name">First name</label>
-            <input type="text" id="first_name" name="first_name" required>
-        </div>
-        <div class="form-group">
-            <label for="last_name">Last name</label>
-            <input type="text" id="last_name" name="last_name" required>
-        </div>
-        <div class="form-group">
-            <label for="email">Email address</label>
-            <input type="email" id="email" name="email" required>
-        </div>
-        <div class="form-group">
-            <label for="password">Password</label>
-            <input type="password" id="password" name="password" required>
-        </div>
-        <button type="submit">Create account</button>
-    </form>
-    <p>Already have an account? <a href="{{ url_for('auth.login') }}">Log in</a></p>
+<div style="min-height:80vh; display:flex; align-items:center; justify-content:center; padding-top:var(--nav-height)">
+    <p style="font-family:var(--font-display); font-size:1.5rem; color:var(--color-navy)">Register — coming soon.</p>
 </div>
 {% endblock %}
