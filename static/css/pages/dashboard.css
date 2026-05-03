@@ -1,0 +1,810 @@
+/* ============================================================
+   CheersBoard — Dashboard
+   ============================================================
+   Supports both dark (default) and light themes via
+   .theme--dark and .theme--light on the body element.
+   All interactive elements are touch-friendly with min
+   44px tap targets throughout.
+
+   Structure:
+   1.  Theme variables
+   2.  Page wrapper
+   3.  Dashboard layout
+   4.  Header & welcome
+   5.  Theme toggle
+   6.  Dashboard sections
+   7.  Board cards
+   8.  Empty state
+   9.  Tier badges
+   10. Pricing table
+   11. Expand buttons & preview panels
+   12. Layout demos
+   13. Responsive
+   ============================================================ */
+
+
+/* ============================================================
+   1. Theme variables
+   ============================================================
+   --dash-accent drives name colour, prices, and highlights.
+   Dark mode uses yellow. Light mode uses teal for contrast
+   against the cream background.
+   ============================================================ */
+
+.theme--dark {
+    --dash-bg:           #141B2D;
+    --dash-surface:      rgba(255,255,255,0.05);
+    --dash-border:       rgba(255,255,255,0.12);
+    --dash-text:         #FFFFFF;
+    --dash-text-muted:   rgba(255,255,255,0.7);
+    --dash-text-faint:   rgba(255,255,255,0.35);
+    --dash-input-bg:     rgba(255,255,255,0.07);
+    --dash-hover:        rgba(255,255,255,0.1);
+    --dash-table-head:   rgba(255,255,255,0.06);
+    --dash-table-stripe: rgba(255,255,255,0.02);
+    --dash-shadow:       0 4px 20px rgba(0,0,0,0.3);
+    --dash-accent:       #F5C518;
+}
+
+.theme--light {
+    --dash-bg:           #F5F0EB;
+    --dash-surface:      #FFFFFF;
+    --dash-border:       #E5E7EB;
+    --dash-text:         #1E2A42;
+    --dash-text-muted:   #6B7280;
+    --dash-text-faint:   #9CA3AF;
+    --dash-input-bg:     #F9FAFB;
+    --dash-hover:        #F3F4F6;
+    --dash-table-head:   #F9FAFB;
+    --dash-table-stripe: #FAFAFA;
+    --dash-shadow:       0 4px 20px rgba(0,0,0,0.08);
+    --dash-accent:       #2ABFBF;
+}
+
+
+/* ============================================================
+   2. Page wrapper
+   ============================================================ */
+
+.page--dashboard {
+    background: var(--dash-bg);
+    min-height: 100vh;
+    transition: background 0.3s ease, color 0.3s ease;
+}
+
+
+/* ============================================================
+   3. Dashboard layout
+   ============================================================ */
+
+.dashboard {
+    padding-top: calc(var(--nav-height) + 2rem);
+    padding-bottom: 4rem;
+}
+
+.dashboard__inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 2.5rem;
+}
+
+
+/* ============================================================
+   4. Header & welcome
+   ============================================================ */
+
+.dashboard__header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.dashboard__heading {
+    font-family: var(--font-display);
+    font-size: clamp(1.5rem, 3vw, 2.25rem);
+    font-weight: 700;
+    color: var(--dash-text);
+    margin-bottom: 0.375rem;
+}
+
+.dashboard__name {
+    color: var(--dash-accent);
+}
+
+.dashboard__subheading {
+    font-size: 1rem;
+    color: var(--dash-text-muted);
+}
+
+
+/* ============================================================
+   5. Theme toggle
+   ============================================================ */
+
+.theme-toggle {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    flex-shrink: 0;
+}
+
+.theme-toggle__icon {
+    font-size: 1.1rem;
+    line-height: 1;
+}
+
+.theme-toggle__switch {
+    position: relative;
+    display: inline-block;
+    width: 52px;
+    height: 28px;
+    cursor: pointer;
+}
+
+.theme-toggle__input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+    position: absolute;
+}
+
+.theme-toggle__slider {
+    position: absolute;
+    inset: 0;
+    background: rgba(255,255,255,0.15);
+    border-radius: 9999px;
+    transition: background 0.3s ease;
+    border: 2px solid rgba(255,255,255,0.2);
+}
+
+.theme--light .theme-toggle__slider {
+    background: #E5E7EB;
+    border-color: #D1D5DB;
+}
+
+.theme-toggle__slider::before {
+    content: '';
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    left: 2px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: var(--color-white);
+    border-radius: 50%;
+    transition: transform 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.theme--light .theme-toggle__slider::before {
+    background: var(--color-navy);
+}
+
+.theme-toggle__input:checked + .theme-toggle__slider {
+    background: var(--color-yellow);
+    border-color: var(--color-yellow);
+}
+
+.theme-toggle__input:checked + .theme-toggle__slider::before {
+    transform: translateY(-50%) translateX(24px);
+}
+
+
+/* ============================================================
+   6. Dashboard sections
+   ============================================================ */
+
+.dashboard-section {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.dashboard-section__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+}
+
+.dashboard-section__title {
+    font-family: var(--font-display);
+    font-size: 1.375rem;
+    font-weight: 700;
+    color: var(--dash-text);
+}
+
+.dashboard-section__subtitle {
+    font-size: 0.9375rem;
+    color: var(--dash-text-muted);
+}
+
+.btn--sm {
+    font-size: 0.875rem;
+    padding: 0.625rem 1.25rem;
+    min-height: 44px;
+}
+
+.btn--ghost-dark {
+    background: transparent;
+    border: 2px solid var(--dash-border);
+    min-height: 44px;
+}
+
+.theme--dark .btn--ghost-dark {
+    color: rgba(255,255,255,0.75);
+    border-color: rgba(255,255,255,0.2);
+}
+
+.theme--dark .btn--ghost-dark:active,
+.theme--dark .btn--ghost-dark:hover {
+    background: rgba(255,255,255,0.1);
+    color: var(--color-white);
+    border-color: rgba(255,255,255,0.4);
+}
+
+.theme--light .btn--ghost-dark {
+    color: var(--dash-text-muted);
+    border-color: var(--dash-border);
+}
+
+.theme--light .btn--ghost-dark:active,
+.theme--light .btn--ghost-dark:hover {
+    background: var(--color-navy);
+    color: var(--color-white);
+    border-color: var(--color-navy);
+}
+
+
+/* ============================================================
+   7. Board cards
+   ============================================================ */
+
+.boards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.25rem;
+}
+
+.board-card {
+    background: var(--dash-surface);
+    border: 1px solid var(--dash-border);
+    border-radius: var(--radius-lg);
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.625rem;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.board-card:active {
+    transform: translateY(-2px);
+    box-shadow: var(--dash-shadow);
+}
+
+@media (hover: hover) {
+    .board-card:hover {
+        transform: translateY(-3px);
+        box-shadow: var(--dash-shadow);
+    }
+}
+
+.board-card__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.board-card__status {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--dash-text-faint);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.board-card__status--active {
+    color: var(--color-green);
+}
+
+.board-card__title {
+    font-family: var(--font-display);
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--dash-text);
+}
+
+.board-card__recipient {
+    font-size: 0.9375rem;
+    color: var(--dash-text-muted);
+}
+
+.board-card__occasion {
+    font-size: 0.8125rem;
+    color: var(--dash-text-faint);
+}
+
+.board-card__stats {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-top: 0.25rem;
+}
+
+.board-card__stat {
+    font-size: 0.8125rem;
+    color: var(--dash-text-muted);
+}
+
+.board-card__actions {
+    display: flex;
+    gap: 0.625rem;
+    margin-top: 0.5rem;
+}
+
+.board-card__actions .btn {
+    flex: 1;
+    min-height: 44px;
+}
+
+
+/* ============================================================
+   8. Empty state
+   ============================================================ */
+
+.empty-state {
+    background: var(--dash-surface);
+    border: 2px dashed var(--dash-border);
+    border-radius: var(--radius-xl);
+    padding: 3rem 2rem;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+}
+
+.empty-state__icon {
+    font-size: 3.5rem;
+}
+
+.empty-state__title {
+    font-family: var(--font-display);
+    font-size: 1.375rem;
+    font-weight: 700;
+    color: var(--dash-text);
+}
+
+.empty-state__body {
+    font-size: 0.9375rem;
+    color: var(--dash-text-muted);
+    max-width: 400px;
+    line-height: 1.6;
+}
+
+.empty-state .btn {
+    min-height: 52px;
+    padding: 0.875rem 2rem;
+}
+
+
+/* ============================================================
+   9. Tier badges
+   ============================================================ */
+
+.tier-badge {
+    display: inline-block;
+    font-family: var(--font-display);
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.25rem 0.75rem;
+    border-radius: var(--radius-full);
+}
+
+.tier-badge--free    { background: rgba(107,114,128,0.15); color: #9CA3AF; }
+.tier-badge--lite    { background: rgba(43,191,191,0.15);  color: var(--color-teal); }
+.tier-badge--premium { background: rgba(245,197,24,0.15);  color: var(--color-yellow); }
+.tier-badge--event   { background: rgba(139,92,246,0.15);  color: var(--color-purple); }
+
+.theme--light .tier-badge--free    { background: rgba(107,114,128,0.12); color: #6B7280; }
+.theme--light .tier-badge--premium { background: rgba(180,140,0,0.12);   color: #9A7A00; }
+
+
+/* ============================================================
+   10. Pricing table
+   ============================================================ */
+
+.pricing-table-wrapper {
+    overflow-x: auto;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--dash-border);
+    -webkit-overflow-scrolling: touch;
+}
+
+.pricing-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 600px;
+}
+
+.pricing-table__feature-col {
+    width: 28%;
+}
+
+.pricing-table__tier-col {
+    width: 18%;
+    text-align: center;
+}
+
+.pricing-table thead tr {
+    background: var(--dash-table-head);
+}
+
+.pricing-table thead th {
+    padding: 1.25rem 1rem;
+    border-bottom: 2px solid var(--dash-border);
+}
+
+.tier-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+    position: relative;
+}
+
+.tier-header--featured {
+    padding-top: 0.5rem;
+}
+
+.tier-header__badge {
+    position: absolute;
+    top: -1.25rem;
+    background: var(--color-yellow);
+    color: var(--color-navy);
+    font-family: var(--font-display);
+    font-size: 0.6875rem;
+    font-weight: 700;
+    padding: 0.1875rem 0.625rem;
+    border-radius: var(--radius-full);
+    white-space: nowrap;
+}
+
+.tier-header__name {
+    font-family: var(--font-display);
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--dash-text);
+}
+
+.tier-header__price {
+    font-family: var(--font-display);
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--dash-accent);
+}
+
+.tier-col--premium {
+    background: rgba(245,197,24,0.04);
+}
+
+.pricing-table__row td {
+    padding: 0.875rem 1rem;
+    border-bottom: 1px solid var(--dash-border);
+    vertical-align: middle;
+}
+
+.pricing-table__row:nth-child(even) {
+    background: var(--dash-table-stripe);
+}
+
+.pricing-table__row:last-child td {
+    border-bottom: none;
+}
+
+.pricing-table__label {
+    font-family: var(--font-display);
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: var(--dash-text);
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    flex-wrap: wrap;
+}
+
+.pricing-table__cell {
+    text-align: center;
+    font-size: 0.9375rem;
+    color: var(--dash-text-muted);
+}
+
+.pricing-table__cta-row td {
+    padding: 1.25rem 1rem;
+    background: var(--dash-table-head);
+    border-bottom: none;
+}
+
+.pricing-table__cta-row .btn {
+    width: 100%;
+    min-height: 48px;
+}
+
+.pricing-table__cta-row .btn--outline {
+    background: transparent;
+    border-width: 2px;
+}
+
+.theme--dark .pricing-table__cta-row .btn--outline {
+    color: var(--color-white);
+    border-color: rgba(255,255,255,0.3);
+}
+
+.theme--dark .pricing-table__cta-row .btn--outline:active,
+.theme--dark .pricing-table__cta-row .btn--outline:hover {
+    background: rgba(255,255,255,0.1);
+    border-color: rgba(255,255,255,0.6);
+}
+
+.theme--light .pricing-table__cta-row .btn--outline {
+    color: var(--color-navy);
+    border-color: var(--dash-border);
+}
+
+.theme--light .pricing-table__cta-row .btn--outline:active,
+.theme--light .pricing-table__cta-row .btn--outline:hover {
+    background: var(--color-navy);
+    color: var(--color-white);
+    border-color: var(--color-navy);
+}
+
+.tick {
+    font-weight: 700;
+    font-size: 1rem;
+}
+
+.tick--yes     { color: var(--color-green); }
+.tick--no      { color: var(--dash-text-faint); }
+.tick--partial { color: var(--color-teal); font-size: 0.8125rem; }
+
+
+/* ============================================================
+   11. Expand buttons & preview panels
+   ============================================================ */
+
+.expand-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    border-radius: var(--radius-full);
+    font-family: var(--font-display);
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.375rem 0.75rem;
+    min-height: 34px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    -webkit-tap-highlight-color: transparent;
+    border: 1px solid var(--dash-border);
+    background: var(--dash-input-bg);
+    color: var(--dash-text-muted);
+}
+
+.theme--dark .expand-btn {
+    color: rgba(255,255,255,0.75);
+    border-color: rgba(255,255,255,0.2);
+    background: rgba(255,255,255,0.07);
+}
+
+.expand-btn:active,
+.expand-btn:hover {
+    background: var(--dash-hover);
+    color: var(--dash-text);
+}
+
+.expand-btn__icon {
+    font-size: 0.625rem;
+    transition: transform 0.2s ease;
+}
+
+.expand-btn--open .expand-btn__icon {
+    transform: rotate(180deg);
+}
+
+.pricing-table__preview-row td {
+    padding: 0;
+    border-bottom: 2px solid var(--dash-border);
+}
+
+.preview-panel {
+    padding: 1.25rem;
+    background: var(--dash-table-stripe);
+    animation: card-rise 0.3s ease both;
+}
+
+.preview-panel__tiers {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.25rem;
+}
+
+.preview-tier__name {
+    margin-bottom: 0.75rem;
+}
+
+.preview-tier__items {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.625rem;
+}
+
+.preview-thumb {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.375rem;
+}
+
+.preview-thumb__img {
+    width: 72px;
+    height: 54px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--dash-border);
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.preview-thumb__img--placeholder {
+    background: var(--dash-surface);
+    font-size: 1.5rem;
+}
+
+.preview-thumb__img--layout {
+    background: var(--dash-surface);
+    padding: 6px;
+}
+
+.preview-thumb__label {
+    font-size: 0.6875rem;
+    color: var(--dash-text-muted);
+    text-align: center;
+    font-weight: 600;
+}
+
+
+/* ============================================================
+   12. Layout demos
+   ============================================================ */
+
+.layout-demo {
+    width: 100%;
+    height: 100%;
+    display: grid;
+    gap: 3px;
+}
+
+.layout-demo div {
+    background: var(--color-teal);
+    border-radius: 2px;
+    opacity: 0.7;
+}
+
+.layout-demo--grid {
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+}
+
+.layout-demo--scattered {
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-rows: 1fr;
+    align-items: center;
+}
+
+.layout-demo--scattered div:nth-child(1) { transform: rotate(-6deg); }
+.layout-demo--scattered div:nth-child(2) { transform: rotate(4deg); }
+.layout-demo--scattered div:nth-child(3) { transform: rotate(-2deg); }
+
+.layout-demo--masonry {
+    grid-template-columns: 1fr 1fr;
+}
+
+.layout-demo--masonry div:nth-child(1) { height: 18px; }
+.layout-demo--masonry div:nth-child(2) { height: 12px; }
+.layout-demo--masonry div:nth-child(3) { height: 14px; }
+.layout-demo--masonry div:nth-child(4) { height: 20px; }
+.layout-demo--masonry div:nth-child(5) { grid-column: span 2; height: 10px; }
+
+.layout-demo--polaroid {
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-rows: 1fr;
+    align-items: center;
+    gap: 3px;
+}
+
+.layout-demo--polaroid div {
+    background: white;
+    border: 1px solid var(--dash-border);
+    padding: 3px 3px 8px;
+    border-radius: 1px;
+}
+
+.layout-demo--polaroid div::after {
+    content: '';
+    display: block;
+    width: 100%;
+    height: 20px;
+    background: var(--color-teal);
+    opacity: 0.6;
+    border-radius: 1px;
+}
+
+
+/* ============================================================
+   13. Responsive
+   ============================================================ */
+
+@media (max-width: 768px) {
+    .dashboard__header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .preview-panel__tiers {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .boards-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 480px) {
+    .preview-panel__tiers {
+        grid-template-columns: 1fr;
+    }
+
+    .dashboard-section__header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .pricing-table {
+        min-width: 520px;
+    }
+}
+
+/* ============================================================
+   Light mode button overrides
+   btn--primary uses yellow globally but on the light cream
+   background it needs teal for readability
+   ============================================================ */
+
+.theme--light .btn--primary {
+    background: var(--color-teal);
+    border-color: var(--color-teal);
+    color: var(--color-white);
+}
+
+.theme--light .btn--primary:hover,
+.theme--light .btn--primary:active {
+    background: #229f9f;
+    border-color: #229f9f;
+}
+
+/* Popular badge in light mode — yellow on white table header
+   is still readable but swap to navy for better contrast */
+
+.theme--light .tier-header__badge {
+    background: var(--color-navy);
+    color: var(--color-white);
+}

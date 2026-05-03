@@ -28,7 +28,8 @@
                     <a href="{{ url_for('auth.logout') }}" class="nav__link">Log Out</a>
                 {% else %}
                     <a href="{{ url_for('auth.login') }}" class="nav__link">Log In</a>
-                    <a href="{{ url_for('auth.register_step1') }}" class="btn btn--primary">Get Started</a>                {% endif %}
+                    <a href="{{ url_for('auth.register_step1') }}" class="btn btn--primary">Get Started</a>
+                {% endif %}
             </div>
         </div>
     </nav>

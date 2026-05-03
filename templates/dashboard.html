@@ -1,7 +1,463 @@
 {% extends "base.html" %}
 {% block title %}Dashboard — CheersBoard{% endblock %}
+{% block body_class %}page--dashboard theme--{{ theme }}{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/pages/dashboard.css') }}">
+{% endblock %}
+
 {% block content %}
-<div style="min-height:80vh; display:flex; align-items:center; justify-content:center; padding-top:var(--nav-height)">
-    <p style="font-family:var(--font-display); font-size:1.5rem; color:var(--color-navy)">Dashboard — coming soon.</p>
+<div class="dashboard">
+    <div class="dashboard__inner">
+
+        <!-- ============================================================
+             Header
+             ============================================================ -->
+        <div class="dashboard__header">
+            <div class="dashboard__welcome">
+                <h1 class="dashboard__heading">
+                    Welcome back, <span class="dashboard__name">{{ user.first_name }}</span>! 🎉
+                </h1>
+                <p class="dashboard__subheading">
+                    Ready to create something worth celebrating?
+                </p>
+            </div>
+            <div class="dashboard__controls">
+                <!-- Dark / light toggle -->
+                <div class="theme-toggle" title="Switch between dark and light mode">
+                    <span class="theme-toggle__icon">🌙</span>
+                    <label class="theme-toggle__switch">
+                        <input
+                            type="checkbox"
+                            id="theme-toggle-input"
+                            class="theme-toggle__input"
+                            {% if theme == 'light' %}checked{% endif %}
+                        >
+                        <span class="theme-toggle__slider"></span>
+                    </label>
+                    <span class="theme-toggle__icon">☀️</span>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- ============================================================
+             My Boards
+             ============================================================ -->
+        <section class="dashboard-section">
+            <div class="dashboard-section__header">
+                <h2 class="dashboard-section__title">My Boards</h2>
+                <a href="#" class="btn btn--primary btn--sm">+ Create a Board</a>
+            </div>
+
+            {% if boards %}
+            <div class="boards-grid">
+                {% for board in boards %}
+                <div class="board-card board-card--{{ board.tier }}">
+                    <div class="board-card__header">
+                        <span class="board-card__tier tier-badge tier-badge--{{ board.tier }}">
+                            {{ board.tier | capitalize }}
+                        </span>
+                        <span class="board-card__status {% if board.status == 'active' %}board-card__status--active{% endif %}">
+                            {{ board.status | capitalize }}
+                        </span>
+                    </div>
+                    <h3 class="board-card__title">{{ board.title }}</h3>
+                    <p class="board-card__recipient">For {{ board.recipient_name }}</p>
+                    {% if board.occasion_name %}
+                    <p class="board-card__occasion">{{ board.occasion_name }}</p>
+                    {% endif %}
+                    <div class="board-card__stats">
+                        <span class="board-card__stat">
+                            💬 {{ board.message_count }} message{{ 's' if board.message_count != 1 else '' }}
+                        </span>
+                        <span class="board-card__stat">
+                            📅 {{ board.created_at | format_date }}
+                        </span>
+                    </div>
+                    <div class="board-card__actions">
+                        <a href="/board/{{ board.slug }}" class="btn btn--sm btn--outline">View Board</a>
+                        <a href="#" class="btn btn--sm btn--ghost-dark">Manage</a>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            {% else %}
+            <!-- Empty state -->
+            <div class="empty-state">
+                <div class="empty-state__icon">🎊</div>
+                <h3 class="empty-state__title">No boards yet</h3>
+                <p class="empty-state__body">
+                    Create your first board and share it with friends, family, and colleagues.
+                    Your free board is waiting!
+                </p>
+                <a href="#" class="btn btn--primary">Create your first board</a>
+            </div>
+            {% endif %}
+        </section>
+
+
+        <!-- ============================================================
+             Pricing & Features Table
+             ============================================================ -->
+        <section class="dashboard-section">
+            <div class="dashboard-section__header">
+                <h2 class="dashboard-section__title">What's included</h2>
+                <p class="dashboard-section__subtitle">Each board is a one-off purchase. No subscriptions.</p>
+            </div>
+
+            <div class="pricing-table-wrapper">
+                <table class="pricing-table">
+                    <thead>
+                        <tr>
+                            <th class="pricing-table__feature-col">Feature</th>
+                            <th class="pricing-table__tier-col tier-col--free">
+                                <div class="tier-header">
+                                    <span class="tier-header__name">Free</span>
+                                    <span class="tier-header__price">£0</span>
+                                </div>
+                            </th>
+                            <th class="pricing-table__tier-col tier-col--lite">
+                                <div class="tier-header">
+                                    <span class="tier-header__name">Lite</span>
+                                    <span class="tier-header__price">£4.99</span>
+                                </div>
+                            </th>
+                            <th class="pricing-table__tier-col tier-col--premium">
+                                <div class="tier-header tier-header--featured">
+                                    <span class="tier-header__badge">Popular</span>
+                                    <span class="tier-header__name">Premium</span>
+                                    <span class="tier-header__price">£9.99</span>
+                                </div>
+                            </th>
+                            <th class="pricing-table__tier-col tier-col--event">
+                                <div class="tier-header">
+                                    <span class="tier-header__name">Event</span>
+                                    <span class="tier-header__price">£19.99</span>
+                                </div>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+
+                        <!-- Messages -->
+                        <tr class="pricing-table__row">
+                            <td class="pricing-table__label">Messages</td>
+                            <td class="pricing-table__cell">Up to 10</td>
+                            <td class="pricing-table__cell">Up to 30</td>
+                            <td class="pricing-table__cell">Unlimited</td>
+                            <td class="pricing-table__cell">Unlimited</td>
+                        </tr>
+
+                        <!-- Themes -->
+                        <tr class="pricing-table__row pricing-table__row--expandable">
+                            <td class="pricing-table__label">
+                                Themes
+                                <button class="expand-btn" data-target="themes-preview" aria-expanded="false">
+                                    <span class="expand-btn__text">Preview</span>
+                                    <span class="expand-btn__icon">▼</span>
+                                </button>
+                            </td>
+                            <td class="pricing-table__cell">1 theme</td>
+                            <td class="pricing-table__cell">3 themes</td>
+                            <td class="pricing-table__cell">8 themes</td>
+                            <td class="pricing-table__cell">All 13</td>
+                        </tr>
+                        <tr class="pricing-table__preview-row" id="themes-preview" hidden>
+                            <td colspan="5">
+                                <div class="preview-panel">
+                                    <div class="preview-panel__tiers">
+
+                                        <div class="preview-tier">
+                                            <h4 class="preview-tier__name tier-badge tier-badge--free">Free</h4>
+                                            <div class="preview-tier__items">
+                                                <div class="preview-thumb">
+                                                    <div class="preview-thumb__img preview-thumb__img--placeholder">🎨</div>
+                                                    <span class="preview-thumb__label">Classic Grid</span>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="preview-tier">
+                                            <h4 class="preview-tier__name tier-badge tier-badge--lite">Lite</h4>
+                                            <div class="preview-tier__items">
+                                                <div class="preview-thumb">
+                                                    <div class="preview-thumb__img preview-thumb__img--placeholder">🎨</div>
+                                                    <span class="preview-thumb__label">Classic Grid</span>
+                                                </div>
+                                                <div class="preview-thumb">
+                                                    <div class="preview-thumb__img preview-thumb__img--placeholder">🎨</div>
+                                                    <span class="preview-thumb__label">Sunrise</span>
+                                                </div>
+                                                <div class="preview-thumb">
+                                                    <div class="preview-thumb__img preview-thumb__img--placeholder">🎨</div>
+                                                    <span class="preview-thumb__label">Midnight</span>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="preview-tier">
+                                            <h4 class="preview-tier__name tier-badge tier-badge--premium">Premium</h4>
+                                            <div class="preview-tier__items">
+                                                {% for theme_name in ['Classic Grid','Sunrise','Midnight','Confetti','Botanical','Retro','Pastel Dream','Ocean'] %}
+                                                <div class="preview-thumb">
+                                                    <div class="preview-thumb__img preview-thumb__img--placeholder">🎨</div>
+                                                    <span class="preview-thumb__label">{{ theme_name }}</span>
+                                                </div>
+                                                {% endfor %}
+                                            </div>
+                                        </div>
+
+                                        <div class="preview-tier">
+                                            <h4 class="preview-tier__name tier-badge tier-badge--event">Event</h4>
+                                            <div class="preview-tier__items">
+                                                {% for theme_name in ['Classic Grid','Sunrise','Midnight','Confetti','Botanical','Retro','Pastel Dream','Ocean','Neon Party','Vintage','Celestial','Festival','Cinema'] %}
+                                                <div class="preview-thumb">
+                                                    <div class="preview-thumb__img preview-thumb__img--placeholder">🎨</div>
+                                                    <span class="preview-thumb__label">{{ theme_name }}</span>
+                                                </div>
+                                                {% endfor %}
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+
+                        <!-- Layouts -->
+                        <tr class="pricing-table__row pricing-table__row--expandable">
+                            <td class="pricing-table__label">
+                                Layouts
+                                <button class="expand-btn" data-target="layouts-preview" aria-expanded="false">
+                                    <span class="expand-btn__text">Preview</span>
+                                    <span class="expand-btn__icon">▼</span>
+                                </button>
+                            </td>
+                            <td class="pricing-table__cell">Grid</td>
+                            <td class="pricing-table__cell">Grid, Scattered</td>
+                            <td class="pricing-table__cell">+ Masonry</td>
+                            <td class="pricing-table__cell">All 4</td>
+                        </tr>
+                        <tr class="pricing-table__preview-row" id="layouts-preview" hidden>
+                            <td colspan="5">
+                                <div class="preview-panel">
+                                    <div class="preview-panel__tiers">
+
+                                        <div class="preview-tier">
+                                            <h4 class="preview-tier__name tier-badge tier-badge--free">Free</h4>
+                                            <div class="preview-tier__items">
+                                                <div class="preview-thumb">
+                                                    <div class="preview-thumb__img preview-thumb__img--layout">
+                                                        <div class="layout-demo layout-demo--grid">
+                                                            <div></div><div></div><div></div><div></div>
+                                                        </div>
+                                                    </div>
+                                                    <span class="preview-thumb__label">Grid</span>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="preview-tier">
+                                            <h4 class="preview-tier__name tier-badge tier-badge--lite">Lite</h4>
+                                            <div class="preview-tier__items">
+                                                <div class="preview-thumb">
+                                                    <div class="preview-thumb__img preview-thumb__img--layout">
+                                                        <div class="layout-demo layout-demo--grid">
+                                                            <div></div><div></div><div></div><div></div>
+                                                        </div>
+                                                    </div>
+                                                    <span class="preview-thumb__label">Grid</span>
+                                                </div>
+                                                <div class="preview-thumb">
+                                                    <div class="preview-thumb__img preview-thumb__img--layout">
+                                                        <div class="layout-demo layout-demo--scattered">
+                                                            <div></div><div></div><div></div>
+                                                        </div>
+                                                    </div>
+                                                    <span class="preview-thumb__label">Scattered</span>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="preview-tier">
+                                            <h4 class="preview-tier__name tier-badge tier-badge--premium">Premium</h4>
+                                            <div class="preview-tier__items">
+                                                <div class="preview-thumb">
+                                                    <div class="preview-thumb__img preview-thumb__img--layout">
+                                                        <div class="layout-demo layout-demo--grid">
+                                                            <div></div><div></div><div></div><div></div>
+                                                        </div>
+                                                    </div>
+                                                    <span class="preview-thumb__label">Grid</span>
+                                                </div>
+                                                <div class="preview-thumb">
+                                                    <div class="preview-thumb__img preview-thumb__img--layout">
+                                                        <div class="layout-demo layout-demo--scattered">
+                                                            <div></div><div></div><div></div>
+                                                        </div>
+                                                    </div>
+                                                    <span class="preview-thumb__label">Scattered</span>
+                                                </div>
+                                                <div class="preview-thumb">
+                                                    <div class="preview-thumb__img preview-thumb__img--layout">
+                                                        <div class="layout-demo layout-demo--masonry">
+                                                            <div></div><div></div><div></div><div></div><div></div>
+                                                        </div>
+                                                    </div>
+                                                    <span class="preview-thumb__label">Masonry</span>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="preview-tier">
+                                            <h4 class="preview-tier__name tier-badge tier-badge--event">Event</h4>
+                                            <div class="preview-tier__items">
+                                                <div class="preview-thumb">
+                                                    <div class="preview-thumb__img preview-thumb__img--layout">
+                                                        <div class="layout-demo layout-demo--grid">
+                                                            <div></div><div></div><div></div><div></div>
+                                                        </div>
+                                                    </div>
+                                                    <span class="preview-thumb__label">Grid</span>
+                                                </div>
+                                                <div class="preview-thumb">
+                                                    <div class="preview-thumb__img preview-thumb__img--layout">
+                                                        <div class="layout-demo layout-demo--scattered">
+                                                            <div></div><div></div><div></div>
+                                                        </div>
+                                                    </div>
+                                                    <span class="preview-thumb__label">Scattered</span>
+                                                </div>
+                                                <div class="preview-thumb">
+                                                    <div class="preview-thumb__img preview-thumb__img--layout">
+                                                        <div class="layout-demo layout-demo--masonry">
+                                                            <div></div><div></div><div></div><div></div><div></div>
+                                                        </div>
+                                                    </div>
+                                                    <span class="preview-thumb__label">Masonry</span>
+                                                </div>
+                                                <div class="preview-thumb">
+                                                    <div class="preview-thumb__img preview-thumb__img--layout">
+                                                        <div class="layout-demo layout-demo--polaroid">
+                                                            <div></div><div></div><div></div>
+                                                        </div>
+                                                    </div>
+                                                    <span class="preview-thumb__label">Polaroid</span>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+
+                        <!-- QR Code -->
+                        <tr class="pricing-table__row">
+                            <td class="pricing-table__label">QR Code</td>
+                            <td class="pricing-table__cell"><span class="tick tick--no">✗</span></td>
+                            <td class="pricing-table__cell"><span class="tick tick--yes">✓</span></td>
+                            <td class="pricing-table__cell"><span class="tick tick--yes">✓</span></td>
+                            <td class="pricing-table__cell"><span class="tick tick--yes">✓</span></td>
+                        </tr>
+
+                        <!-- PDF Export -->
+                        <tr class="pricing-table__row">
+                            <td class="pricing-table__label">PDF Export</td>
+                            <td class="pricing-table__cell"><span class="tick tick--no">✗</span></td>
+                            <td class="pricing-table__cell"><span class="tick tick--partial">✓ Watermarked</span></td>
+                            <td class="pricing-table__cell"><span class="tick tick--yes">✓</span></td>
+                            <td class="pricing-table__cell"><span class="tick tick--yes">✓</span></td>
+                        </tr>
+
+                        <!-- Moderation -->
+                        <tr class="pricing-table__row">
+                            <td class="pricing-table__label">Message moderation</td>
+                            <td class="pricing-table__cell"><span class="tick tick--no">✗</span></td>
+                            <td class="pricing-table__cell"><span class="tick tick--no">✗</span></td>
+                            <td class="pricing-table__cell"><span class="tick tick--yes">✓</span></td>
+                            <td class="pricing-table__cell"><span class="tick tick--yes">✓</span></td>
+                        </tr>
+
+                        <!-- Slideshow -->
+                        <tr class="pricing-table__row">
+                            <td class="pricing-table__label">Live slideshow</td>
+                            <td class="pricing-table__cell"><span class="tick tick--no">✗</span></td>
+                            <td class="pricing-table__cell"><span class="tick tick--no">✗</span></td>
+                            <td class="pricing-table__cell"><span class="tick tick--no">✗</span></td>
+                            <td class="pricing-table__cell"><span class="tick tick--yes">✓</span></td>
+                        </tr>
+
+                        <!-- OBS / Embed -->
+                        <tr class="pricing-table__row">
+                            <td class="pricing-table__label">OBS / Embed</td>
+                            <td class="pricing-table__cell"><span class="tick tick--no">✗</span></td>
+                            <td class="pricing-table__cell"><span class="tick tick--no">✗</span></td>
+                            <td class="pricing-table__cell"><span class="tick tick--no">✗</span></td>
+                            <td class="pricing-table__cell"><span class="tick tick--yes">✓</span></td>
+                        </tr>
+
+                        <!-- CTA row -->
+                        <tr class="pricing-table__row pricing-table__cta-row">
+                            <td class="pricing-table__label"></td>
+                            <td class="pricing-table__cell">
+                                <a href="#" class="btn btn--outline btn--sm">Create free</a>
+                            </td>
+                            <td class="pricing-table__cell">
+                                <a href="#" class="btn btn--outline btn--sm">Choose Lite</a>
+                            </td>
+                            <td class="pricing-table__cell">
+                                <a href="#" class="btn btn--primary btn--sm">Choose Premium</a>
+                            </td>
+                            <td class="pricing-table__cell">
+                                <a href="#" class="btn btn--outline btn--sm">Choose Event</a>
+                            </td>
+                        </tr>
+
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+    </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// ============================================================
+// Dark / light theme toggle
+// ============================================================
+const toggleInput = document.getElementById('theme-toggle-input');
+const body = document.body;
+
+toggleInput.addEventListener('change', () => {
+    const preference = toggleInput.checked ? 'light' : 'dark';
+
+    body.classList.remove('theme--dark', 'theme--light');
+    body.classList.add('theme--' + preference);
+
+    fetch('/dashboard/theme', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ preference })
+    });
+});
+
+// ============================================================
+// Expandable preview panels
+// ============================================================
+document.querySelectorAll('.expand-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        const targetId = btn.dataset.target;
+        const row = document.getElementById(targetId);
+        const expanded = btn.getAttribute('aria-expanded') === 'true';
+
+        btn.setAttribute('aria-expanded', !expanded);
+        btn.classList.toggle('expand-btn--open', !expanded);
+        row.hidden = expanded;
+    });
+});
+</script>
 {% endblock %}

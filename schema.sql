@@ -120,6 +120,9 @@ CREATE TABLE users (
 
     -- Account state
     is_active INT NOT NULL DEFAULT 1,
+    theme_preference TEXT NOT NULL DEFAULT 'dark' CHECK (
+        theme_preference IN ('dark', 'light')
+    ),
 
     -- Audit
     created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,

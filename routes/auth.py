@@ -502,4 +502,11 @@ def logout():
     session.clear()
     flash("You have been logged out.", "success")
     return redirect(url_for("auth.login"))
+
+# ============================================================
+# Forget Password
+# ============================================================
  
+@auth_bp.route("/forgot-password")
+def forgot_password():
+    return render_template("forgot_password.html")
