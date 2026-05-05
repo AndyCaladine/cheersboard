@@ -9,67 +9,47 @@
      Hero
      ============================================================ -->
 <section class="hero">
+
+    <!-- CSS confetti pieces -->
     <div class="hero__confetti" aria-hidden="true">
-<div class="hero__confetti" aria-hidden="true">
-    <span class="confetti confetti--1"></span>
-    <span class="confetti confetti--2"></span>
-    <span class="confetti confetti--3"></span>
-    <span class="confetti confetti--4"></span>
-    <span class="confetti confetti--5"></span>
-    <span class="confetti confetti--6"></span>
-    <span class="confetti confetti--7"></span>
-    <span class="confetti confetti--8"></span>
-    <span class="confetti confetti--9"></span>
-    <span class="confetti confetti--10"></span>
-    <span class="confetti confetti--11"></span>
-    <span class="confetti confetti--12"></span>
-    <span class="confetti confetti--13"></span>
-    <span class="confetti confetti--14"></span>
-    <span class="confetti confetti--15"></span>
-    <span class="confetti confetti--16"></span>
-    <span class="confetti confetti--17"></span>
-    <span class="confetti confetti--18"></span>
-    <span class="confetti confetti--19"></span>
-    <span class="confetti confetti--20"></span>
-</div>
+        <span class="confetti confetti--1"></span>
+        <span class="confetti confetti--2"></span>
+        <span class="confetti confetti--3"></span>
+        <span class="confetti confetti--4"></span>
+        <span class="confetti confetti--5"></span>
+        <span class="confetti confetti--6"></span>
+        <span class="confetti confetti--7"></span>
+        <span class="confetti confetti--8"></span>
+        <span class="confetti confetti--9"></span>
+        <span class="confetti confetti--10"></span>
+        <span class="confetti confetti--11"></span>
+        <span class="confetti confetti--12"></span>
+        <span class="confetti confetti--13"></span>
+        <span class="confetti confetti--14"></span>
+        <span class="confetti confetti--15"></span>
+        <span class="confetti confetti--16"></span>
+        <span class="confetti confetti--17"></span>
+        <span class="confetti confetti--18"></span>
+        <span class="confetti confetti--19"></span>
+        <span class="confetti confetti--20"></span>
     </div>
-        <div class="hero__inner">
-            <div class="hero__confetti" aria-hidden="true">
-<div class="hero__confetti" aria-hidden="true">
-    <span class="confetti confetti--1"></span>
-    <span class="confetti confetti--2"></span>
-    <span class="confetti confetti--3"></span>
-    <span class="confetti confetti--4"></span>
-    <span class="confetti confetti--5"></span>
-    <span class="confetti confetti--6"></span>
-    <span class="confetti confetti--7"></span>
-    <span class="confetti confetti--8"></span>
-    <span class="confetti confetti--9"></span>
-    <span class="confetti confetti--10"></span>
-    <span class="confetti confetti--11"></span>
-    <span class="confetti confetti--12"></span>
-    <span class="confetti confetti--13"></span>
-    <span class="confetti confetti--14"></span>
-    <span class="confetti confetti--15"></span>
-    <span class="confetti confetti--16"></span>
-    <span class="confetti confetti--17"></span>
-    <span class="confetti confetti--18"></span>
-    <span class="confetti confetti--19"></span>
-    <span class="confetti confetti--20"></span>
-</div>
+
+    <!-- Firework canvas — sits above confetti, below content -->
+    <canvas class="hero__fireworks" id="heroFireworksCanvas" aria-hidden="true"></canvas>
+
+    <div class="hero__inner">
+        <div class="hero__center">
+            <img src="{{ url_for('static', filename='images/logo_dark.PNG') }}" alt="CheersBoard" class="hero__logo">
+            <p class="hero__subheading">
+                Create a shared digital board for any occasion. Share a link, collect messages from anyone — no app required. Then keep it forever.
+            </p>
+            <div class="hero__actions">
+                <a href="{{ url_for('auth.register_step1') }}" class="btn btn--primary btn--lg">Create a Board</a>
+                <a href="#how-it-works" class="btn btn--ghost btn--lg">See How It Works</a>
             </div>
-            <div class="hero__center">
-                <img src="{{ url_for('static', filename='images/logo_dark.PNG') }}" alt="CheersBoard" class="hero__logo">
-                <p class="hero__subheading">
-                    Create a shared digital board for any occasion. Share a link, collect messages from anyone — no app required. Then keep it forever.
-                </p>
-                <div class="hero__actions">
-                    <a href="{{ url_for('auth.register_step1') }}" class="btn btn--primary btn--lg">Create a Board</a>
-                    <a href="#how-it-works" class="btn btn--ghost btn--lg">See How It Works</a>
-                </div>
-            </div>
-        </div>        
+        </div>
     </div>
+
 </section>
 
 

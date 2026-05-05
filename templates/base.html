@@ -20,7 +20,7 @@
     <nav class="nav">
         <div class="nav__inner">
             <a href="{{ url_for('home') }}" class="nav__logo">
-                <img src="{{ url_for('static', filename='images/favicon_light.PNG') }}" alt="CheersBoard" class="nav__logo-img">
+                <img src="{{ url_for('static', filename='images/light_favicon.PNG') }}" alt="CheersBoard" class="nav__logo-img">
             </a>
             <div class="nav__links">
                 {% if session.get("user_id") %}

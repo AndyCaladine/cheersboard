@@ -11,7 +11,7 @@
    4.  Navigation
    5.  Flash Messages
    6.  Hero
-   7.  Confetti
+   7.  Confetti & Fireworks
    8.  Sections
    9.  How It Works Steps
    10. Occasions
@@ -322,7 +322,7 @@ h1, h2, h3, h4 {
 
 .hero__inner {
     position: relative;
-    z-index: 1;
+    z-index: 3;
     max-width: 860px;
     margin: 0 auto;
     padding: var(--space-xl) var(--space-lg);
@@ -368,8 +368,19 @@ h1, h2, h3, h4 {
 
 
 /* ============================================================
-   7. Confetti
+   7. Confetti & Fireworks
    ============================================================ */
+
+/* Canvas for JS firework bursts — sits above the hero background
+   but below the CSS confetti and hero content */
+.hero__fireworks {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 1;
+}
 
 .hero__confetti {
     position: absolute;
