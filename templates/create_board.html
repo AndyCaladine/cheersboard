@@ -1,0 +1,226 @@
+{% extends "base.html" %}
+
+{% block title %}Create a Board — CheersBoard{% endblock %}
+{% block body_class %}page--create-board{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/pages/create_board.css') }}">
+{% endblock %}
+
+{% block content %}
+
+<div class="cb-layout">
+
+    <!-- ============================================================
+         Form panel (left)
+         ============================================================ -->
+    <div class="cb-form-panel">
+
+        <div class="cb-form-header">
+            <h1 class="cb-form-header__title">Create a Board</h1>
+            <p class="cb-form-header__sub">Fill in the details below. Your price updates as you choose a theme.</p>
+        </div>
+
+        <form method="POST" action="{{ url_for('boards.create_board') }}" id="createBoardForm" novalidate>
+
+            <!-- ── Board name ─────────────────────────────── -->
+            <div class="cb-field {% if errors.board_name %}cb-field--error{% endif %}">
+                <label class="cb-field__label" for="board_name">Board name</label>
+                <p class="cb-field__hint">Something like "Sarah's 30th" or "The Smith Wedding"</p>
+                <input
+                    type="text"
+                    id="board_name"
+                    name="board_name"
+                    class="cb-field__input"
+                    value="{{ form.board_name or '' }}"
+                    maxlength="80"
+                    autocomplete="off"
+                    placeholder="e.g. Sarah's 30th Birthday"
+                >
+                {% if errors.board_name %}
+                    <p class="cb-field__error">{{ errors.board_name }}</p>
+                {% endif %}
+            </div>
+
+            <!-- ── Recipient name ─────────────────────────── -->
+            <div class="cb-field {% if errors.recipient_name %}cb-field--error{% endif %}">
+                <label class="cb-field__label" for="recipient_name">Who is this board for?</label>
+                <p class="cb-field__hint">Their name will be shown on the board</p>
+                <input
+                    type="text"
+                    id="recipient_name"
+                    name="recipient_name"
+                    class="cb-field__input"
+                    value="{{ form.recipient_name or '' }}"
+                    maxlength="80"
+                    autocomplete="off"
+                    placeholder="e.g. Sarah"
+                >
+                {% if errors.recipient_name %}
+                    <p class="cb-field__error">{{ errors.recipient_name }}</p>
+                {% endif %}
+            </div>
+
+            <!-- ── Occasion ───────────────────────────────── -->
+            <div class="cb-field {% if errors.occasion_id %}cb-field--error{% endif %}">
+                <label class="cb-field__label">Occasion</label>
+                <p class="cb-field__hint">Choose the type of celebration</p>
+                <div class="cb-occasion-grid">
+                    {% for occasion in occasions %}
+                    <label class="cb-occasion-pill {% if form.occasion_id == occasion.id|string %}cb-occasion-pill--selected{% endif %}">
+                        <input
+                            type="radio"
+                            name="occasion_id"
+                            value="{{ occasion.id }}"
+                            {% if form.occasion_id == occasion.id|string %}checked{% endif %}
+                        >
+                        {{ occasion.name }}
+                    </label>
+                    {% endfor %}
+                </div>
+                {% if errors.occasion_id %}
+                    <p class="cb-field__error">{{ errors.occasion_id }}</p>
+                {% endif %}
+            </div>
+
+            <!-- ── Event date ─────────────────────────────── -->
+            <div class="cb-field">
+                <label class="cb-field__label" for="event_date">Event date <span class="cb-field__optional">(optional)</span></label>
+                <p class="cb-field__hint">Displayed on the board header</p>
+                <input
+                    type="date"
+                    id="event_date"
+                    name="event_date"
+                    class="cb-field__input cb-field__input--date"
+                    value="{{ form.event_date or '' }}"
+                >
+            </div>
+
+            <!-- ── Creator message ────────────────────────── -->
+            <div class="cb-field {% if errors.creator_message %}cb-field--error{% endif %}">
+                <label class="cb-field__label" for="creator_message">Your message <span class="cb-field__optional">(optional)</span></label>
+                <p class="cb-field__hint">A personal note from you, shown at the top of the board</p>
+                <textarea
+                    id="creator_message"
+                    name="creator_message"
+                    class="cb-field__textarea"
+                    maxlength="500"
+                    rows="4"
+                    placeholder="e.g. Wishing Sarah all the love on her special day…"
+                >{{ form.creator_message or '' }}</textarea>
+                <p class="cb-field__count"><span id="messageCount">0</span>/500</p>
+                {% if errors.creator_message %}
+                    <p class="cb-field__error">{{ errors.creator_message }}</p>
+                {% endif %}
+            </div>
+
+            <!-- ── Theme picker ───────────────────────────── -->
+            <div class="cb-field {% if errors.theme_id %}cb-field--error{% endif %}">
+                <label class="cb-field__label">Choose a theme</label>
+                <p class="cb-field__hint">Your theme determines the look of your board and the tier price</p>
+
+                {% set tier_order = ['free', 'lite', 'premium', 'event'] %}
+                {% set tier_labels = {'free': 'Free', 'lite': 'Lite — £4.99', 'premium': 'Premium — £9.99', 'event': 'Event — £19.99'} %}
+
+                {% for tier in tier_order %}
+                <div class="cb-theme-group">
+                    <h3 class="cb-theme-group__label">{{ tier_labels[tier] }}</h3>
+                    <div class="cb-theme-grid">
+                        {% for theme in themes if theme.tier_required == tier %}
+                        <label
+                            class="cb-theme-card {% if form.theme_id == theme.id|string %}cb-theme-card--selected{% endif %}"
+                            data-tier="{{ theme.tier_required }}"
+                            data-theme-id="{{ theme.id }}"
+                        >
+                            <input
+                                type="radio"
+                                name="theme_id"
+                                value="{{ theme.id }}"
+                                {% if form.theme_id == theme.id|string %}checked{% endif %}
+                            >
+                            <!-- Colour swatch using CSS class colours -->
+                            <div class="cb-theme-card__swatch {{ theme.css_class }}"></div>
+                            <div class="cb-theme-card__info">
+                                <span class="cb-theme-card__name">{{ theme.name }}</span>
+                                <span class="cb-theme-card__layout">{{ theme.layout_type | capitalize }}</span>
+                            </div>
+                        </label>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endfor %}
+
+                {% if errors.theme_id %}
+                    <p class="cb-field__error">{{ errors.theme_id }}</p>
+                {% endif %}
+            </div>
+
+            <!-- ── Submit ─────────────────────────────────── -->
+            <div class="cb-form-actions">
+                <button type="submit" class="btn btn--primary btn--lg">
+                    Continue to Board Settings →
+                </button>
+                <a href="{{ url_for('boards.dashboard') }}" class="btn btn--ghost btn--lg">Cancel</a>
+            </div>
+
+        </form>
+    </div>
+
+    <!-- ============================================================
+         Sticky summary sidebar (right)
+         ============================================================ -->
+    <aside class="cb-summary" id="boardSummary" aria-live="polite">
+
+        <div class="cb-summary__inner">
+
+            <h2 class="cb-summary__heading">Your Board</h2>
+
+            <div class="cb-summary__row">
+                <span class="cb-summary__label">Board name</span>
+                <span class="cb-summary__value" id="summaryName">—</span>
+            </div>
+
+            <div class="cb-summary__row">
+                <span class="cb-summary__label">For</span>
+                <span class="cb-summary__value" id="summaryRecipient">—</span>
+            </div>
+
+            <div class="cb-summary__row">
+                <span class="cb-summary__label">Occasion</span>
+                <span class="cb-summary__value" id="summaryOccasion">—</span>
+            </div>
+
+            <div class="cb-summary__row">
+                <span class="cb-summary__label">Theme</span>
+                <span class="cb-summary__value" id="summaryTheme">—</span>
+            </div>
+
+            <div class="cb-summary__row">
+                <span class="cb-summary__label">Layout</span>
+                <span class="cb-summary__value" id="summaryLayout">—</span>
+            </div>
+
+            <div class="cb-summary__divider"></div>
+
+            <div class="cb-summary__tier" id="summaryTierBlock">
+                <span class="cb-summary__tier-label" id="summaryTierName">Free</span>
+                <span class="cb-summary__tier-price" id="summaryPrice">£0</span>
+            </div>
+
+            <p class="cb-summary__note" id="summaryNote">Choose a theme to see your price.</p>
+
+            <div class="cb-summary__features" id="summaryFeatures">
+                <!-- Populated by JS based on selected tier -->
+            </div>
+
+        </div>
+
+    </aside>
+
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/pages/create_board.js') }}"></script>
+{% endblock %}

@@ -1,8 +1,41 @@
-from flask import Blueprint, flash, redirect, render_template, request, session, url_for, jsonify
+from flask import Blueprint, flash, redirect, render_template, request, session, url_for
 from utils.db import get_db_connection
+import re
+import secrets
  
  
 boards_bp = Blueprint("boards", __name__)
+
+
+# ============================================================
+# Helpers
+# ============================================================
+ 
+def login_required(f):
+    """Simple session-based auth guard."""
+    from functools import wraps
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        if "user_id" not in session:
+            flash("Please log in to continue.", "error")
+            return redirect(url_for("auth.login"))
+        return f(*args, **kwargs)
+    return decorated
+ 
+ 
+def generate_slug(title):
+    """
+    Turn a board title into a URL-safe slug.
+    Appends a short random suffix to avoid collisions.
+    e.g. "Sarah's 30th!" -> "sarahs-30th-a3f9"
+    """
+    slug = title.lower()
+    slug = re.sub(r"[^\w\s-]", "", slug)
+    slug = re.sub(r"[\s_]+", "-", slug)
+    slug = re.sub(r"-+", "-", slug).strip("-")
+    slug = slug[:40]
+    suffix = secrets.token_hex(2)
+    return f"{slug}-{suffix}"
 
 
 # ============================================================
@@ -66,7 +99,7 @@ def dashboard():
         theme=user["theme_preference"],
     )
  
- 
+  
 # ============================================================
 # Toggle theme preference
 # ============================================================
@@ -100,3 +133,166 @@ def toggle_theme():
         conn.close()
  
     return jsonify({"preference": preference})
+
+# ============================================================
+# Create board
+# ============================================================
+ 
+@boards_bp.route("/create", methods=["GET", "POST"])
+@login_required
+def create_board():
+    conn = get_db_connection()
+ 
+    try:
+        occasions = conn.execute(
+            "SELECT id, name, slug FROM occasions WHERE is_active = 1 ORDER BY display_order"
+        ).fetchall()
+ 
+        themes = conn.execute(
+            """
+            SELECT id, name, slug, layout_type, tier_required, css_class
+            FROM themes
+            WHERE is_active = 1
+            ORDER BY display_order
+            """,
+        ).fetchall()
+    finally:
+        conn.close()
+ 
+    # ── Tier pricing map ──────────────────────────────────────
+    TIER_PRICES = {
+        'free':    0,
+        'lite':    499,
+        'premium': 999,
+        'event':   1999,
+    }
+ 
+    errors = {}
+ 
+    if request.method == "POST":
+        # ── Collect fields ────────────────────────────────────
+        board_name      = request.form.get("board_name",      "").strip()
+        recipient_name  = request.form.get("recipient_name",  "").strip()
+        occasion_id     = request.form.get("occasion_id",     "").strip()
+        theme_id        = request.form.get("theme_id",        "").strip()
+        event_date      = request.form.get("event_date",      "").strip()
+        creator_message = request.form.get("creator_message", "").strip()
+ 
+        # ── Validate ──────────────────────────────────────────
+        if not board_name:
+            errors["board_name"] = "Board name is required."
+        elif len(board_name) > 80:
+            errors["board_name"] = "Board name must be 80 characters or fewer."
+ 
+        if not recipient_name:
+            errors["recipient_name"] = "Recipient name is required."
+        elif len(recipient_name) > 80:
+            errors["recipient_name"] = "Recipient name must be 80 characters or fewer."
+ 
+        if not occasion_id:
+            errors["occasion_id"] = "Please choose an occasion."
+ 
+        if not theme_id:
+            errors["theme_id"] = "Please choose a theme."
+ 
+        if len(creator_message) > 500:
+            errors["creator_message"] = "Your message must be 500 characters or fewer."
+ 
+        # ── Resolve theme tier ────────────────────────────────
+        selected_theme = None
+        if theme_id and not errors.get("theme_id"):
+            conn = get_db_connection()
+            try:
+                selected_theme = conn.execute(
+                    "SELECT id, tier_required FROM themes WHERE id = ? AND is_active = 1",
+                    (theme_id,)
+                ).fetchone()
+            finally:
+                conn.close()
+ 
+            if not selected_theme:
+                errors["theme_id"] = "Invalid theme selected."
+ 
+        # ── Write to DB if clean ──────────────────────────────
+        if not errors and selected_theme:
+            tier      = selected_theme["tier_required"]
+            is_paid   = 1 if tier == "free" else 0
+            slug      = generate_slug(board_name)
+ 
+            conn = get_db_connection()
+            try:
+                conn.execute(
+                    """
+                    INSERT INTO boards (
+                        owner_user_id, title, recipient_name, slug,
+                        occasion_id, theme_id, tier, is_paid,
+                        updated_by_user_id, updated_by_role
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    """,
+                    (
+                        session["user_id"],
+                        board_name,
+                        recipient_name,
+                        slug,
+                        occasion_id,
+                        theme_id,
+                        tier,
+                        is_paid,
+                        session["user_id"],
+                        "customer",
+                    )
+                )
+                conn.commit()
+ 
+                board_id = conn.execute("SELECT last_insert_rowid()").fetchone()[0]
+ 
+            finally:
+                conn.close()
+ 
+            # Free boards go straight to the board settings page.
+            # Paid boards go there too — checkout is triggered from settings.
+            flash(f"Board created! {'Share it below.' if tier == 'free' else 'Complete your payment to unlock it.'}", "success")
+            return redirect(url_for("boards.board_settings", slug=slug))
+ 
+    return render_template(
+        "create_board.html",
+        occasions=occasions,
+        themes=themes,
+        errors=errors,
+        form=request.form,
+        tier_prices={
+            'free':    '£0',
+            'lite':    '£4.99',
+            'premium': '£9.99',
+            'event':   '£19.99',
+        }
+    )
+ 
+ 
+# ============================================================
+# Board settings (Placeholder)
+# ============================================================
+ 
+@boards_bp.route("/board/<slug>/settings")
+@login_required
+def board_settings(slug):
+    conn = get_db_connection()
+    try:
+        board = conn.execute(
+            """
+            SELECT b.*, o.name AS occasion_name, t.name AS theme_name
+            FROM boards b
+            LEFT JOIN occasions o ON b.occasion_id = o.id
+            LEFT JOIN themes    t ON b.theme_id    = t.id
+            WHERE b.slug = ? AND b.owner_user_id = ?
+            """,
+            (slug, session["user_id"])
+        ).fetchone()
+    finally:
+        conn.close()
+ 
+    if not board:
+        flash("Board not found.", "error")
+        return redirect(url_for("boards.dashboard"))
+ 
+    return render_template("board_settings.html", board=board)

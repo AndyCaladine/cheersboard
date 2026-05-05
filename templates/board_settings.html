@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block title %}Board Settings — {{ board.title }} — CheersBoard{% endblock %}
+{% block body_class %}page--board-settings{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/pages/create_board.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="stub-page">
+    <h1>{{ board.title }}</h1>
+    <p>Board created successfully. Settings page coming next session.</p>
+    <p><strong>Tier:</strong> {{ board.tier | capitalize }}</p>
+    <p><strong>For:</strong> {{ board.recipient_name }}</p>
+    <p><strong>Occasion:</strong> {{ board.occasion_name }}</p>
+    <p><strong>Theme:</strong> {{ board.theme_name }}</p>
+    <a href="{{ url_for('boards.dashboard') }}" class="btn btn--primary">Back to Dashboard</a>
+</div>
+{% endblock %}

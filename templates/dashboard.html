@@ -46,7 +46,7 @@
         <section class="dashboard-section">
             <div class="dashboard-section__header">
                 <h2 class="dashboard-section__title">My Boards</h2>
-                <a href="#" class="btn btn--primary btn--sm">+ Create a Board</a>
+                <a href="{{ url_for('boards.create_board') }}" class="btn btn--primary btn--sm">+ Create a Board</a>
             </div>
 
             {% if boards %}
@@ -91,7 +91,7 @@
                     Create your first board and share it with friends, family, and colleagues.
                     Your free board is waiting!
                 </p>
-                <a href="#" class="btn btn--primary">Create your first board</a>
+                <a href="{{ url_for('boards.create_board') }}" class="btn btn--primary">Create your first board</a>
             </div>
             {% endif %}
         </section>
@@ -187,11 +187,11 @@
                                                 </div>
                                                 <div class="preview-thumb">
                                                     <div class="preview-thumb__img preview-thumb__img--placeholder">🎨</div>
-                                                    <span class="preview-thumb__label">Sunrise</span>
+                                                    <span class="preview-thumb__label">Pastel Celebration</span>
                                                 </div>
                                                 <div class="preview-thumb">
                                                     <div class="preview-thumb__img preview-thumb__img--placeholder">🎨</div>
-                                                    <span class="preview-thumb__label">Midnight</span>
+                                                    <span class="preview-thumb__label">Pinboard</span>
                                                 </div>
                                             </div>
                                         </div>
@@ -199,7 +199,7 @@
                                         <div class="preview-tier">
                                             <h4 class="preview-tier__name tier-badge tier-badge--premium">Premium</h4>
                                             <div class="preview-tier__items">
-                                                {% for theme_name in ['Classic Grid','Sunrise','Midnight','Confetti','Botanical','Retro','Pastel Dream','Ocean'] %}
+                                                {% for theme_name in ['Classic','Pastel Celebration','Pinboard','Scrapbook','Polaroid Wall','Beach','Enchanted Forest','Bloom','Crime Board','Noir'] %}
                                                 <div class="preview-thumb">
                                                     <div class="preview-thumb__img preview-thumb__img--placeholder">🎨</div>
                                                     <span class="preview-thumb__label">{{ theme_name }}</span>
@@ -211,7 +211,7 @@
                                         <div class="preview-tier">
                                             <h4 class="preview-tier__name tier-badge tier-badge--event">Event</h4>
                                             <div class="preview-tier__items">
-                                                {% for theme_name in ['Classic Grid','Sunrise','Midnight','Confetti','Botanical','Retro','Pastel Dream','Ocean','Neon Party','Vintage','Celestial','Festival','Cinema'] %}
+                                                {% for theme_name in ['Classic','Pastel Celebration','Pinboard','Scrapbook','Polaroid Wall','Beach','Enchanted Forest','Bloom','Crime Board','Noir','Midnight Gala','Golden Hour','Confetti Burst'] %}
                                                 <div class="preview-thumb">
                                                     <div class="preview-thumb__img preview-thumb__img--placeholder">🎨</div>
                                                     <span class="preview-thumb__label">{{ theme_name }}</span>
@@ -402,16 +402,16 @@
                         <tr class="pricing-table__row pricing-table__cta-row">
                             <td class="pricing-table__label"></td>
                             <td class="pricing-table__cell">
-                                <a href="#" class="btn btn--outline btn--sm">Create free</a>
+                                <a href="{{ url_for('boards.create_board') }}" class="btn btn--outline btn--sm">Create free</a>
                             </td>
                             <td class="pricing-table__cell">
-                                <a href="#" class="btn btn--outline btn--sm">Choose Lite</a>
+                                <a href="{{ url_for('boards.create_board') }}" class="btn btn--outline btn--sm">Choose Lite</a>
                             </td>
                             <td class="pricing-table__cell">
-                                <a href="#" class="btn btn--primary btn--sm">Choose Premium</a>
+                                <a href="{{ url_for('boards.create_board') }}" class="btn btn--primary btn--sm">Choose Premium</a>
                             </td>
                             <td class="pricing-table__cell">
-                                <a href="#" class="btn btn--outline btn--sm">Choose Event</a>
+                                <a href="{{ url_for('boards.create_board') }}" class="btn btn--outline btn--sm">Choose Event</a>
                             </td>
                         </tr>
 
