@@ -1,0 +1,166 @@
+{% extends "base.html" %}
+{% block title %}Terms and Conditions — CheersBoard{% endblock %}
+{% block body_class %}page--legal{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/pages/legal.css') }}">
+{% endblock %}
+
+{% block content %}
+
+<div class="legal">
+    <div class="legal__inner">
+
+        <div class="legal__header">
+            <h1 class="legal__title">Terms and Conditions</h1>
+            <p class="legal__meta">Last updated: 10 May 2026</p>
+        </div>
+
+        <div class="legal__body">
+
+            <p>These Terms and Conditions apply between you, the User of this Website, and AndyCaladine.co.uk trading as CheersBoard, the owner and provider of this Website and the CheersBoard service. Please read these Terms and Conditions carefully. Your use of the Website and the CheersBoard service constitutes your agreement to these Terms and Conditions.</p>
+
+            <p>These Terms and Conditions should be read alongside our <a href="{{ url_for('main.privacy') }}">Privacy Policy</a>.</p>
+
+            <h2>Definitions and Interpretation</h2>
+
+            <p>1. In these Terms and Conditions, the following definitions are used:</p>
+
+            <table class="legal__table">
+                <tbody>
+                    <tr>
+                        <td><strong>Board</strong></td>
+                        <td>a digital celebration board created by a registered User via the CheersBoard platform, to which messages may be added by contributors.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>CheersBoard, we, us or our</strong></td>
+                        <td>AndyCaladine.co.uk trading as CheersBoard of 41 Priory Road, Wollaston, NN29 7PW.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Contributor</strong></td>
+                        <td>any person who adds a message to a Board, whether or not they hold a registered account.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Service</strong></td>
+                        <td>the CheersBoard platform and all associated features, including the creation, sharing, and viewing of Boards.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>User or you</strong></td>
+                        <td>any person who accesses or uses the Website or the Service, including registered account holders and guest Contributors.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Website</strong></td>
+                        <td>the website at <a href="https://cheersboard.co.uk">https://cheersboard.co.uk</a> and any sub-domains of this site unless expressly excluded by their own terms and conditions.</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h2>Use of the Website and Service</h2>
+
+            <p>2. You must be at least 13 years of age to use this Website and the Service. By using the Website, you confirm that you meet this requirement.</p>
+
+            <p>3. You agree to use the Website and the Service only for lawful purposes and in a manner that does not infringe the rights of others or restrict or inhibit their use and enjoyment of the Website.</p>
+
+            <p>4. You are responsible for ensuring that all persons who access the Website or the Service through your account or internet connection are aware of these Terms and Conditions and that they comply with them.</p>
+
+            <h2>Registered Accounts</h2>
+
+            <p>5. To create a Board you must register for an account. You are responsible for maintaining the confidentiality of your account credentials and for all activity that occurs under your account.</p>
+
+            <p>6. You must provide accurate and complete information when registering. If your information changes, you must update your account promptly.</p>
+
+            <p>7. We reserve the right to suspend or terminate accounts that we reasonably believe have been used in breach of these Terms and Conditions.</p>
+
+            <h2>Free Boards</h2>
+
+            <p>8. Free Boards are provided at no charge and are intended for personal, non-commercial use only. You may not use a Free Board for any commercial purpose, including but not limited to advertising, promoting a business, or any activity from which you derive financial gain.</p>
+
+            <p>9. Free Boards are subject to the limitations set out on our pricing page, including a maximum number of messages. We reserve the right to amend these limitations at any time with reasonable notice.</p>
+
+            <h2>Paid Boards — Pricing and Payment</h2>
+
+            <p>10. Paid Board tiers (Lite, Premium, and Event) are available at the prices set out on our pricing page at the time of purchase. All prices are inclusive of VAT where applicable.</p>
+
+            <p>11. Payment is processed securely by our third-party payment provider, Stripe. We do not store your payment card details. By making a payment you agree to Stripe's terms of service.</p>
+
+            <p>12. A Board is paid for on a one-off, per-board basis. There are no recurring subscription charges unless expressly stated.</p>
+
+            <h2>Cancellations, Refunds and the Right to Cancel</h2>
+
+            <p>13. Under the Consumer Contracts (Information, Cancellation and Additional Charges) Regulations 2013, you have the right to cancel a purchase within 14 days of the contract being formed without giving any reason (the "cooling-off period").</p>
+
+            <p>14. However, by requesting that your Board is made available to you immediately upon payment, you expressly consent to the Service beginning before the end of the cooling-off period. By giving this consent you acknowledge that you will lose your right to cancel once the Service has been fully performed, or once your Board has been made available to you, whichever is sooner.</p>
+
+            <p>15. This consent will be obtained via a clearly labelled checkbox at the point of checkout. If you do not provide this consent, your Board will not be activated until the 14-day cooling-off period has expired.</p>
+
+            <p>16. Outside of the above, all payments for paid Board tiers are non-refundable once the Board has been activated, except where required by law or at our sole discretion in exceptional circumstances.</p>
+
+            <p>17. If you believe you are entitled to a refund, please contact us at <a href="mailto:hello@cheersboard.co.uk">hello@cheersboard.co.uk</a> and we will consider your request on a case-by-case basis.</p>
+
+            <h2>User-Generated Content</h2>
+
+            <p>18. CheersBoard allows registered Users and guest Contributors to submit content including messages, names, and other text ("User Content") to Boards.</p>
+
+            <p>19. You are solely responsible for any User Content you submit. By submitting User Content you confirm that:</p>
+            <ol type="a">
+                <li>you own or have the right to submit the content;</li>
+                <li>the content does not infringe any third-party intellectual property rights;</li>
+                <li>the content is not unlawful, offensive, defamatory, threatening, obscene, hateful, or otherwise objectionable;</li>
+                <li>the content does not contain spam, advertising, or unsolicited promotional material.</li>
+            </ol>
+
+            <p>20. We reserve the right to remove any User Content that we determine, in our sole discretion, to be in breach of these Terms and Conditions, without notice and without liability to you.</p>
+
+            <p>21. Board owners may enable message moderation on their Board. Where moderation is enabled, messages will not be visible to other contributors until approved by the Board owner.</p>
+
+            <h2>Removal of Contributor Data</h2>
+
+            <p>22. If you have submitted a message to a Board as a Contributor and wish to have that message and any associated personal data removed, you may request this by contacting us at <a href="mailto:hello@cheersboard.co.uk">hello@cheersboard.co.uk</a>.</p>
+
+            <p>23. Please include in your request the name you used when submitting the message and, if known, the name or URL of the Board. We will endeavour to process your request within 30 days.</p>
+
+            <p>24. Please note that where a message has been included in a downloaded PDF or other export by the Board owner, we are unable to remove it from those exported copies.</p>
+
+            <h2>Intellectual Property</h2>
+
+            <p>25. All content on the CheersBoard Website that is not User Content, including but not limited to text, graphics, logos, images, and software, is owned by or licensed to CheersBoard and is protected by applicable intellectual property laws.</p>
+
+            <p>26. You may not reproduce, distribute, or create derivative works from any part of the Website or Service without our express written permission.</p>
+
+            <h2>Limitation of Liability</h2>
+
+            <p>27. To the fullest extent permitted by law, CheersBoard shall not be liable for any indirect, incidental, special, consequential, or punitive damages, or any loss of profits or revenues, whether incurred directly or indirectly, or any loss of data, use, goodwill, or other intangible losses, resulting from:</p>
+            <ol type="a">
+                <li>your use of or inability to use the Service;</li>
+                <li>any unauthorised access to or use of our servers or any personal information stored therein;</li>
+                <li>any interruption or cessation of transmission to or from the Service;</li>
+                <li>any content submitted by Users or Contributors.</li>
+            </ol>
+
+            <p>28. Our total liability to you for any claim arising out of or in connection with these Terms and Conditions shall not exceed the amount paid by you for the Board in question.</p>
+
+            <h2>Availability of the Service</h2>
+
+            <p>29. We do not guarantee that the Website or the Service will always be available or uninterrupted. We may suspend, withdraw, or restrict the availability of all or any part of the Service for business or operational reasons.</p>
+
+            <h2>Changes to These Terms and Conditions</h2>
+
+            <p>30. We reserve the right to amend these Terms and Conditions at any time. Any changes will be posted on this page with an updated date. Your continued use of the Website or Service following any changes constitutes your acceptance of the new Terms and Conditions.</p>
+
+            <p>31. If we make material changes that affect your rights, we will endeavour to notify you by email where possible.</p>
+
+            <h2>Governing Law</h2>
+
+            <p>32. These Terms and Conditions are governed by and construed in accordance with the law of England and Wales. Any disputes arising under these Terms and Conditions shall be subject to the exclusive jurisdiction of the courts of England and Wales.</p>
+
+            <h2>Contact</h2>
+
+            <p>33. If you have any questions about these Terms and Conditions, please contact us at <a href="mailto:hello@cheersboard.co.uk">hello@cheersboard.co.uk</a> or via our <a href="{{ url_for('main.contact') }}">Contact Us</a> page.</p>
+
+            <p class="legal__date">These Terms and Conditions were last updated on 10 May 2026.</p>
+
+        </div>
+
+    </div>
+</div>
+
+{% endblock %}

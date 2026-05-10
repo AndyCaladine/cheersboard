@@ -5,6 +5,7 @@ from routes.auth import auth_bp
 from routes.boards import boards_bp
 from routes.payments import payments_bp
 from routes.admin import admin_bp
+from routes.main import main_bp
 
 
 app = Flask(__name__)
@@ -53,6 +54,7 @@ app.register_blueprint(auth_bp)
 app.register_blueprint(boards_bp)
 app.register_blueprint(payments_bp)
 app.register_blueprint(admin_bp)
+app.register_blueprint(main_bp)
 
 
 # ============================================================

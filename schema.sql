@@ -50,6 +50,8 @@ DROP TABLE IF EXISTS password_resets;
 DROP TABLE IF EXISTS themes;
 DROP TABLE IF EXISTS occasions;
 DROP TABLE IF EXISTS users;
+DROP TABLE IF EXISTS email_log;
+DROP TABLE IF EXISTS contact_messages;
 
 
 -- ============================================================
@@ -367,4 +369,57 @@ CREATE TABLE payments (
     FOREIGN KEY (user_id) REFERENCES users(id),
     FOREIGN KEY (board_id) REFERENCES boards(id),
     FOREIGN KEY (voucher_code_id) REFERENCES voucher_codes(id)
+);
+
+-- ============================================================
+-- Email log
+-- ============================================================
+-- Records every transactional email sent via Resend.
+-- Used to verify whether a user has been sent a specific email
+-- even though delivery tracking is not available.
+-- recipient_email is stored directly in case the user later
+-- changes their account email.
+-- ============================================================
+
+CREATE TABLE email_log (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INT,
+    recipient_email TEXT NOT NULL,
+    email_type TEXT NOT NULL,
+    subject TEXT NOT NULL,
+    resend_id TEXT,
+    status TEXT NOT NULL DEFAULT 'sent' CHECK (
+        status IN ('sent', 'failed')
+    ),
+    error_message TEXT,
+    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id)
+);
+
+-- ============================================================
+-- Contact messages
+-- ============================================================
+-- Stores enquiries submitted via the /contact page.
+-- user_id is NULL for guest submissions.
+-- gdpr_consent is always 1 on insert — the form notice
+-- makes clear that submitting constitutes consent.
+-- status tracks the admin workflow for each message.
+-- notes allows admins to log actions taken.
+-- ============================================================
+
+CREATE TABLE contact_messages (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INT,
+    name TEXT NOT NULL,
+    email TEXT NOT NULL,
+    subject TEXT NOT NULL,
+    message TEXT NOT NULL,
+    gdpr_consent INT NOT NULL DEFAULT 1,
+    status TEXT NOT NULL DEFAULT 'unread' CHECK (
+        status IN ('unread', 'read', 'resolved')
+    ),
+    notes TEXT,
+    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id)
 );

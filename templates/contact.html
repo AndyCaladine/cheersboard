@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+{% block title %}Contact Us — CheersBoard{% endblock %}
+{% block body_class %}page--contact{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/pages/contact.css') }}">
+{% endblock %}
+
+{% block content %}
+
+<div class="contact">
+    <div class="contact__inner">
+
+        <div class="contact__header">
+            <h1 class="contact__title">Get in touch</h1>
+            <p class="contact__subtitle">Got a question, a problem, or just want to say hello? We'd love to hear from you.</p>
+        </div>
+
+        <div class="contact-card">
+
+            <form method="POST" action="{{ url_for('main.contact') }}" novalidate>
+
+                <!-- Name -->
+                <div class="form-group">
+                    <label class="form-label" for="name">
+                        Your name <span class="form-label__required">*</span>
+                    </label>
+                    <input
+                        class="form-input {% if errors.name %}form-input--error{% endif %}"
+                        type="text"
+                        id="name"
+                        name="name"
+                        value="{{ form_data.get('name', prefill.get('name', '')) }}"
+                        placeholder="Jane Smith"
+                        autocomplete="name"
+                        autofocus
+                    >
+                    {% if errors.name %}
+                    <p class="form-error">{{ errors.name }}</p>
+                    {% endif %}
+                </div>
+
+                <!-- Email -->
+                <div class="form-group">
+                    <label class="form-label" for="email">
+                        Email address <span class="form-label__required">*</span>
+                    </label>
+                    <input
+                        class="form-input {% if errors.email %}form-input--error{% endif %}"
+                        type="email"
+                        id="email"
+                        name="email"
+                        value="{{ form_data.get('email', prefill.get('email', '')) }}"
+                        placeholder="jane@example.com"
+                        autocomplete="email"
+                    >
+                    {% if errors.email %}
+                    <p class="form-error">{{ errors.email }}</p>
+                    {% endif %}
+                </div>
+
+                <!-- Subject -->
+                <div class="form-group">
+                    <label class="form-label" for="subject">
+                        Subject <span class="form-label__required">*</span>
+                    </label>
+                    <select
+                        class="form-input form-select {% if errors.subject %}form-input--error{% endif %}"
+                        id="subject"
+                        name="subject"
+                    >
+                        <option value="" disabled {% if not form_data.get('subject') %}selected{% endif %}>Select a subject...</option>
+                        {% for s in subjects %}
+                        <option value="{{ s }}" {% if form_data.get('subject') == s %}selected{% endif %}>{{ s }}</option>
+                        {% endfor %}
+                    </select>
+                    {% if errors.subject %}
+                    <p class="form-error">{{ errors.subject }}</p>
+                    {% endif %}
+                </div>
+
+                <!-- Message -->
+                <div class="form-group">
+                    <label class="form-label" for="message">
+                        Message <span class="form-label__required">*</span>
+                    </label>
+                    <textarea
+                        class="form-input form-textarea {% if errors.message %}form-input--error{% endif %}"
+                        id="message"
+                        name="message"
+                        rows="6"
+                        placeholder="Tell us how we can help..."
+                    >{{ form_data.get('message', '') }}</textarea>
+                    {% if errors.message %}
+                    <p class="form-error">{{ errors.message }}</p>
+                    {% endif %}
+                </div>
+
+                <!-- GDPR notice -->
+                <p class="contact__gdpr">
+                    By submitting this form you agree to us using your details to respond to your enquiry.
+                    We won't use them for any other purpose. See our
+                    <a href="{{ url_for('main.privacy') }}">Privacy Policy</a> for more.
+                </p>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn--primary" style="width:100%;">Send Message</button>
+                </div>
+
+            </form>
+
+        </div>
+
+        <p class="contact__note">
+            We aim to respond within 2 working days. Please do not reply to any automated emails
+            you receive from us — this form is the best way to reach us.
+        </p>
+
+    </div>
+</div>
+
+{% endblock %}
