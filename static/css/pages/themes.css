@@ -1,0 +1,1069 @@
+/* ============================================================
+   CheersBoard — themes.css
+   Board theme overrides and layout types.
+   Applied via css_class on the .board-page wrapper.
+
+   Structure:
+   1.  Layout types (grid, scattered, masonry, polaroid)
+   2.  Theme: Classic
+   3.  Theme: Pastel Celebration
+   4.  Theme: Pinboard
+   5.  Theme: Scrapbook
+   6.  Theme: Polaroid Wall
+   7.  Theme: Beach
+   8.  Theme: Enchanted Forest
+   9.  Theme: Bloom
+   10. Theme: Crime Board
+   11. Theme: Noir
+   12. Theme: Midnight Gala
+   13. Theme: Golden Hour
+   14. Theme: Confetti Burst
+   ============================================================ */
+
+
+/* ============================================================
+   1. Layout types
+   ============================================================ */
+
+/* Grid — equal columns, uniform rows (default) */
+.layout--grid .board-messages__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 1rem;
+}
+
+/* Scattered — cards rotated slightly, varied feel */
+.layout--scattered .board-messages__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 1.25rem;
+}
+
+.layout--scattered .message-card:nth-child(odd) {
+    transform: rotate(-1.5deg);
+}
+
+.layout--scattered .message-card:nth-child(even) {
+    transform: rotate(1deg);
+}
+
+.layout--scattered .message-card:nth-child(3n) {
+    transform: rotate(-0.5deg);
+}
+
+.layout--scattered .message-card:hover {
+    transform: rotate(0deg) translateY(-4px);
+    z-index: 2;
+    position: relative;
+}
+
+/* Masonry — Pinterest-style varying heights */
+.layout--masonry .board-messages__grid {
+    columns: 3;
+    column-gap: 1rem;
+    display: block;
+}
+
+.layout--masonry .message-card {
+    break-inside: avoid;
+    margin-bottom: 1rem;
+    display: block;
+}
+
+/* Polaroid — white frame with space at bottom like a photo */
+.layout--polaroid .board-messages__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 1.5rem;
+}
+
+.layout--polaroid .message-card {
+    background: #fff;
+    padding: 0.875rem 0.875rem 2.5rem;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+    border-radius: 2px;
+    border: none;
+}
+
+.layout--polaroid .message-card:nth-child(odd) {
+    transform: rotate(-2deg);
+}
+
+.layout--polaroid .message-card:nth-child(even) {
+    transform: rotate(1.5deg);
+}
+
+.layout--polaroid .message-card:hover {
+    transform: rotate(0deg) translateY(-4px) scale(1.02);
+    z-index: 2;
+    position: relative;
+}
+
+.layout--polaroid .message-card__footer {
+    border-top: none;
+    padding-top: 0.5rem;
+}
+
+
+/* ============================================================
+   2. Classic (Free — Grid)
+   Clean, warm cream with coral accents.
+   ============================================================ */
+
+.theme-classic {
+    background: #F7F5F2;
+}
+
+.theme-classic .board-header {
+    background: linear-gradient(135deg, #2D2D2D 0%, #1a1a1a 100%);
+}
+
+.theme-classic .board-header__occasion {
+    color: #FF6B6B;
+}
+
+.theme-classic .board-header__stat--limit {
+    color: #FF6B6B;
+}
+
+.theme-classic .board-form-card {
+    background: #FFFFFF;
+    border-color: #E8E4DF;
+}
+
+.theme-classic .board-field__input:focus {
+    border-color: #FF6B6B;
+    box-shadow: 0 0 0 3px rgba(255,107,107,0.15);
+}
+
+.theme-classic .board-form-card__actions .btn--primary {
+    background: #FF6B6B;
+    border-color: #FF6B6B;
+    color: #fff;
+}
+
+.theme-classic .board-form-card__actions .btn--primary:hover {
+    background: #e85555;
+    border-color: #e85555;
+}
+
+.theme-classic .message-card {
+    background: #FFFFFF;
+    border-color: #E8E4DF;
+}
+
+.theme-classic .message-card__name {
+    color: #FF6B6B;
+}
+
+.theme-classic .board-messages__title {
+    color: #2D2D2D;
+}
+
+
+/* ============================================================
+   3. Pastel Celebration (Lite — Grid)
+   Soft pink background, magenta accents.
+   ============================================================ */
+
+.theme-pastel-celebration {
+    background: #FFF0F6;
+}
+
+.theme-pastel-celebration .board-header {
+    background: linear-gradient(135deg, #F472B6 0%, #EC4899 100%);
+}
+
+.theme-pastel-celebration .board-header__occasion {
+    color: #FFF0F6;
+    opacity: 0.9;
+}
+
+.theme-pastel-celebration .board-header__title {
+    color: #fff;
+}
+
+.theme-pastel-celebration .board-header__recipient {
+    color: rgba(255,255,255,0.85);
+}
+
+.theme-pastel-celebration .board-header__stat--limit {
+    color: #FDE68A;
+}
+
+.theme-pastel-celebration .board-form-card {
+    background: #fff;
+    border-color: #FCE7F3;
+}
+
+.theme-pastel-celebration .board-field__input:focus {
+    border-color: #F472B6;
+    box-shadow: 0 0 0 3px rgba(244,114,182,0.15);
+}
+
+.theme-pastel-celebration .board-form-card__actions .btn--primary {
+    background: #EC4899;
+    border-color: #EC4899;
+    color: #fff;
+}
+
+.theme-pastel-celebration .board-form-card__actions .btn--primary:hover {
+    background: #db2777;
+    border-color: #db2777;
+}
+
+.theme-pastel-celebration .message-card {
+    background: #fff;
+    border-color: #FCE7F3;
+}
+
+.theme-pastel-celebration .message-card__name {
+    color: #EC4899;
+}
+
+.theme-pastel-celebration .board-messages__title {
+    color: #9D174D;
+}
+
+
+/* ============================================================
+   4. Pinboard (Lite — Scattered)
+   Cork board texture feel, warm brown and red.
+   ============================================================ */
+
+.theme-pinboard {
+    background: #C4A882;
+}
+
+.theme-pinboard .board-header {
+    background: linear-gradient(135deg, #92400E 0%, #78350F 100%);
+}
+
+.theme-pinboard .board-header__occasion {
+    color: #FCD34D;
+}
+
+.theme-pinboard .board-header__stat--limit {
+    color: #FCD34D;
+}
+
+.theme-pinboard .board-page__inner {
+    background: #C4A882;
+}
+
+.theme-pinboard .board-form-card {
+    background: #FFF8F0;
+    border-color: #D4B896;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+
+.theme-pinboard .board-field__input {
+    background: #FFFCF8;
+    border-color: #D4B896;
+}
+
+.theme-pinboard .board-field__input:focus {
+    border-color: #DC2626;
+    box-shadow: 0 0 0 3px rgba(220,38,38,0.15);
+}
+
+.theme-pinboard .board-form-card__actions .btn--primary {
+    background: #DC2626;
+    border-color: #DC2626;
+    color: #fff;
+}
+
+.theme-pinboard .board-form-card__actions .btn--primary:hover {
+    background: #b91c1c;
+    border-color: #b91c1c;
+}
+
+.theme-pinboard .message-card {
+    background: #FFF8F0;
+    border-color: #D4B896;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+
+.theme-pinboard .message-card__name {
+    color: #DC2626;
+}
+
+.theme-pinboard .board-messages__title {
+    color: #1C1008;
+}
+
+
+/* ============================================================
+   5. Scrapbook (Premium — Scattered)
+   Craft paper, torn edges feel, purple accent.
+   ============================================================ */
+
+.theme-scrapbook {
+    background: #E8D5B7;
+}
+
+.theme-scrapbook .board-header {
+    background: linear-gradient(135deg, #7C3AED 0%, #5B21B6 100%);
+}
+
+.theme-scrapbook .board-header__occasion {
+    color: #DDD6FE;
+}
+
+.theme-scrapbook .board-header__stat--limit {
+    color: #FCD34D;
+}
+
+.theme-scrapbook .board-form-card {
+    background: #FFF9F0;
+    border: 2px dashed #C4A882;
+    box-shadow: 2px 3px 8px rgba(0,0,0,0.1);
+}
+
+.theme-scrapbook .board-field__input {
+    background: #FFFCF8;
+    border-color: #C4A882;
+}
+
+.theme-scrapbook .board-field__input:focus {
+    border-color: #7C3AED;
+    box-shadow: 0 0 0 3px rgba(124,58,237,0.15);
+}
+
+.theme-scrapbook .board-form-card__actions .btn--primary {
+    background: #7C3AED;
+    border-color: #7C3AED;
+    color: #fff;
+}
+
+.theme-scrapbook .board-form-card__actions .btn--primary:hover {
+    background: #6D28D9;
+    border-color: #6D28D9;
+}
+
+.theme-scrapbook .message-card {
+    background: #FFF9F0;
+    border: 2px dashed #C4A882;
+    box-shadow: 2px 3px 8px rgba(0,0,0,0.1);
+}
+
+.theme-scrapbook .message-card__name {
+    color: #7C3AED;
+}
+
+.theme-scrapbook .board-messages__title {
+    color: #3B1F00;
+}
+
+
+/* ============================================================
+   6. Polaroid Wall (Premium — Polaroid)
+   White background, warm amber accent.
+   ============================================================ */
+
+.theme-polaroid-wall {
+    background: #F3F4F6;
+}
+
+.theme-polaroid-wall .board-header {
+    background: linear-gradient(135deg, #374151 0%, #1F2937 100%);
+}
+
+.theme-polaroid-wall .board-header__occasion {
+    color: #F59E0B;
+}
+
+.theme-polaroid-wall .board-header__stat--limit {
+    color: #F59E0B;
+}
+
+.theme-polaroid-wall .board-form-card {
+    background: #fff;
+    border-color: #E5E7EB;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+.theme-polaroid-wall .board-field__input:focus {
+    border-color: #F59E0B;
+    box-shadow: 0 0 0 3px rgba(245,158,11,0.15);
+}
+
+.theme-polaroid-wall .board-form-card__actions .btn--primary {
+    background: #F59E0B;
+    border-color: #F59E0B;
+    color: #1F2937;
+}
+
+.theme-polaroid-wall .board-form-card__actions .btn--primary:hover {
+    background: #D97706;
+    border-color: #D97706;
+}
+
+.theme-polaroid-wall .message-card__name {
+    color: #92400E;
+}
+
+.theme-polaroid-wall .board-messages__title {
+    color: #1F2937;
+}
+
+
+/* ============================================================
+   7. Beach (Premium — Masonry)
+   Sandy yellow, cyan ocean accents.
+   ============================================================ */
+
+.theme-beach {
+    background: #FEF3C7;
+}
+
+.theme-beach .board-header {
+    background: linear-gradient(135deg, #0891B2 0%, #0E7490 100%);
+}
+
+.theme-beach .board-header__occasion {
+    color: #FEF3C7;
+    opacity: 0.9;
+}
+
+.theme-beach .board-header__stat--limit {
+    color: #FDE68A;
+}
+
+.theme-beach .board-form-card {
+    background: #FFFBEB;
+    border-color: #FCD34D;
+}
+
+.theme-beach .board-field__input {
+    background: #FFFEF5;
+    border-color: #FCD34D;
+}
+
+.theme-beach .board-field__input:focus {
+    border-color: #06B6D4;
+    box-shadow: 0 0 0 3px rgba(6,182,212,0.15);
+}
+
+.theme-beach .board-form-card__actions .btn--primary {
+    background: #06B6D4;
+    border-color: #06B6D4;
+    color: #fff;
+}
+
+.theme-beach .board-form-card__actions .btn--primary:hover {
+    background: #0891B2;
+    border-color: #0891B2;
+}
+
+.theme-beach .message-card {
+    background: #FFFBEB;
+    border-color: #FCD34D;
+}
+
+.theme-beach .message-card__name {
+    color: #0891B2;
+}
+
+.theme-beach .board-messages__title {
+    color: #064E3B;
+}
+
+
+/* ============================================================
+   8. Enchanted Forest (Premium — Scattered)
+   Deep green, gold accents, magical feel.
+   ============================================================ */
+
+.theme-enchanted-forest {
+    background: #064E3B;
+}
+
+.theme-enchanted-forest .board-header {
+    background: linear-gradient(135deg, #022C22 0%, #014737 100%);
+}
+
+.theme-enchanted-forest .board-header__occasion {
+    color: #FCD34D;
+}
+
+.theme-enchanted-forest .board-header__stat--limit {
+    color: #FCD34D;
+}
+
+.theme-enchanted-forest .board-form-card {
+    background: #065F46;
+    border-color: #047857;
+    color: #fff;
+}
+
+.theme-enchanted-forest .board-form-card__title {
+    color: #FCD34D;
+}
+
+.theme-enchanted-forest .board-form-card__desc {
+    color: rgba(255,255,255,0.7);
+}
+
+.theme-enchanted-forest .board-field__label {
+    color: rgba(255,255,255,0.9);
+}
+
+.theme-enchanted-forest .board-field__input {
+    background: rgba(255,255,255,0.1);
+    border-color: rgba(255,255,255,0.2);
+    color: #fff;
+}
+
+.theme-enchanted-forest .board-field__input::placeholder {
+    color: rgba(255,255,255,0.35);
+}
+
+.theme-enchanted-forest .board-field__input:focus {
+    border-color: #FCD34D;
+    box-shadow: 0 0 0 3px rgba(252,211,77,0.2);
+}
+
+.theme-enchanted-forest .board-form-card__actions .btn--primary {
+    background: #FCD34D;
+    border-color: #FCD34D;
+    color: #022C22;
+}
+
+.theme-enchanted-forest .board-form-card__actions .btn--primary:hover {
+    background: #F59E0B;
+    border-color: #F59E0B;
+}
+
+.theme-enchanted-forest .message-card {
+    background: #065F46;
+    border-color: #047857;
+    color: #fff;
+}
+
+.theme-enchanted-forest .message-card__content {
+    color: rgba(255,255,255,0.9);
+}
+
+.theme-enchanted-forest .message-card__name {
+    color: #FCD34D;
+}
+
+.theme-enchanted-forest .message-card__date {
+    color: rgba(255,255,255,0.5);
+}
+
+.theme-enchanted-forest .message-card__footer {
+    border-top-color: rgba(255,255,255,0.1);
+}
+
+.theme-enchanted-forest .board-messages__title {
+    color: #FCD34D;
+}
+
+.theme-enchanted-forest .board-no-messages__text {
+    color: rgba(255,255,255,0.6);
+}
+
+
+/* ============================================================
+   9. Bloom (Premium — Grid)
+   Blush pink background, mint green accent.
+   ============================================================ */
+
+.theme-bloom {
+    background: #FFF1F2;
+}
+
+.theme-bloom .board-header {
+    background: linear-gradient(135deg, #FB7185 0%, #F43F5E 100%);
+}
+
+.theme-bloom .board-header__occasion {
+    color: #FFF1F2;
+    opacity: 0.9;
+}
+
+.theme-bloom .board-header__stat--limit {
+    color: #FDE68A;
+}
+
+.theme-bloom .board-form-card {
+    background: #fff;
+    border-color: #FECDD3;
+}
+
+.theme-bloom .board-field__input {
+    border-color: #FECDD3;
+}
+
+.theme-bloom .board-field__input:focus {
+    border-color: #86EFAC;
+    box-shadow: 0 0 0 3px rgba(134,239,172,0.25);
+}
+
+.theme-bloom .board-form-card__actions .btn--primary {
+    background: #86EFAC;
+    border-color: #86EFAC;
+    color: #14532D;
+}
+
+.theme-bloom .board-form-card__actions .btn--primary:hover {
+    background: #4ADE80;
+    border-color: #4ADE80;
+}
+
+.theme-bloom .message-card {
+    background: #fff;
+    border-color: #FECDD3;
+}
+
+.theme-bloom .message-card__name {
+    color: #F43F5E;
+}
+
+.theme-bloom .board-messages__title {
+    color: #881337;
+}
+
+
+/* ============================================================
+   10. Crime Board (Premium — Scattered)
+   Dark background, red string, newspaper clipping feel.
+   ============================================================ */
+
+.theme-crime-board {
+    background: #1A1208;
+}
+
+.theme-crime-board .board-header {
+    background: linear-gradient(135deg, #0D0906 0%, #1A1208 100%);
+    border-bottom: 2px solid #DC2626;
+}
+
+.theme-crime-board .board-header__occasion {
+    color: #DC2626;
+}
+
+.theme-crime-board .board-header__stat--limit {
+    color: #DC2626;
+}
+
+.theme-crime-board .board-form-card {
+    background: #2A1F10;
+    border: 1px solid #DC2626;
+    color: #fff;
+}
+
+.theme-crime-board .board-form-card__title {
+    color: #DC2626;
+    font-family: 'Courier Prime', 'Courier New', monospace;
+}
+
+.theme-crime-board .board-form-card__desc {
+    color: rgba(255,255,255,0.6);
+}
+
+.theme-crime-board .board-field__label {
+    color: rgba(255,255,255,0.85);
+}
+
+.theme-crime-board .board-field__input {
+    background: rgba(255,255,255,0.07);
+    border-color: rgba(220,38,38,0.4);
+    color: #fff;
+    font-family: 'Courier Prime', 'Courier New', monospace;
+}
+
+.theme-crime-board .board-field__input::placeholder {
+    color: rgba(255,255,255,0.25);
+}
+
+.theme-crime-board .board-field__input:focus {
+    border-color: #DC2626;
+    box-shadow: 0 0 0 3px rgba(220,38,38,0.2);
+}
+
+.theme-crime-board .board-form-card__actions .btn--primary {
+    background: #DC2626;
+    border-color: #DC2626;
+    color: #fff;
+    font-family: 'Courier Prime', 'Courier New', monospace;
+}
+
+.theme-crime-board .board-form-card__actions .btn--primary:hover {
+    background: #b91c1c;
+    border-color: #b91c1c;
+}
+
+.theme-crime-board .message-card {
+    background: #2A1F10;
+    border: 1px solid rgba(220,38,38,0.3);
+    color: #fff;
+}
+
+.theme-crime-board .message-card__content {
+    color: rgba(255,255,255,0.85);
+    font-family: 'Courier Prime', 'Courier New', monospace;
+    font-size: 0.9rem;
+}
+
+.theme-crime-board .message-card__name {
+    color: #DC2626;
+    font-family: 'Courier Prime', 'Courier New', monospace;
+}
+
+.theme-crime-board .message-card__date {
+    color: rgba(255,255,255,0.4);
+}
+
+.theme-crime-board .message-card__footer {
+    border-top-color: rgba(220,38,38,0.2);
+}
+
+.theme-crime-board .board-messages__title {
+    color: #DC2626;
+    font-family: 'Courier Prime', 'Courier New', monospace;
+}
+
+.theme-crime-board .board-no-messages__text {
+    color: rgba(255,255,255,0.5);
+}
+
+
+/* ============================================================
+   11. Noir (Premium — Grid)
+   Black and white with gold accent, elegant.
+   ============================================================ */
+
+.theme-noir {
+    background: #111827;
+}
+
+.theme-noir .board-header {
+    background: linear-gradient(135deg, #030712 0%, #111827 100%);
+    border-bottom: 1px solid #FBBF24;
+}
+
+.theme-noir .board-header__occasion {
+    color: #FBBF24;
+}
+
+.theme-noir .board-header__stat--limit {
+    color: #FBBF24;
+}
+
+.theme-noir .board-form-card {
+    background: #1F2937;
+    border-color: rgba(251,191,36,0.2);
+    color: #fff;
+}
+
+.theme-noir .board-form-card__title {
+    color: #FBBF24;
+}
+
+.theme-noir .board-form-card__desc {
+    color: rgba(255,255,255,0.6);
+}
+
+.theme-noir .board-field__label {
+    color: rgba(255,255,255,0.85);
+}
+
+.theme-noir .board-field__input {
+    background: rgba(255,255,255,0.07);
+    border-color: rgba(255,255,255,0.12);
+    color: #fff;
+}
+
+.theme-noir .board-field__input::placeholder {
+    color: rgba(255,255,255,0.25);
+}
+
+.theme-noir .board-field__input:focus {
+    border-color: #FBBF24;
+    box-shadow: 0 0 0 3px rgba(251,191,36,0.2);
+}
+
+.theme-noir .board-form-card__actions .btn--primary {
+    background: #FBBF24;
+    border-color: #FBBF24;
+    color: #111827;
+}
+
+.theme-noir .board-form-card__actions .btn--primary:hover {
+    background: #F59E0B;
+    border-color: #F59E0B;
+}
+
+.theme-noir .message-card {
+    background: #1F2937;
+    border-color: rgba(251,191,36,0.15);
+    color: #fff;
+}
+
+.theme-noir .message-card__content {
+    color: rgba(255,255,255,0.85);
+}
+
+.theme-noir .message-card__name {
+    color: #FBBF24;
+}
+
+.theme-noir .message-card__date {
+    color: rgba(255,255,255,0.4);
+}
+
+.theme-noir .message-card__footer {
+    border-top-color: rgba(255,255,255,0.08);
+}
+
+.theme-noir .board-messages__title {
+    color: #FBBF24;
+}
+
+.theme-noir .board-no-messages__text {
+    color: rgba(255,255,255,0.5);
+}
+
+
+/* ============================================================
+   12. Midnight Gala (Event — Masonry)
+   Deep navy/purple, lavender accents, glamorous.
+   ============================================================ */
+
+.theme-midnight-gala {
+    background: #0F0A1E;
+}
+
+.theme-midnight-gala .board-header {
+    background: linear-gradient(135deg, #1E0B3B 0%, #0F0A1E 100%);
+}
+
+.theme-midnight-gala .board-header__occasion {
+    color: #C4B5FD;
+}
+
+.theme-midnight-gala .board-header__stat--limit {
+    color: #C4B5FD;
+}
+
+.theme-midnight-gala .board-form-card {
+    background: #1E1035;
+    border-color: rgba(167,139,250,0.2);
+    color: #fff;
+}
+
+.theme-midnight-gala .board-form-card__title {
+    color: #C4B5FD;
+}
+
+.theme-midnight-gala .board-form-card__desc {
+    color: rgba(255,255,255,0.6);
+}
+
+.theme-midnight-gala .board-field__label {
+    color: rgba(255,255,255,0.85);
+}
+
+.theme-midnight-gala .board-field__input {
+    background: rgba(255,255,255,0.07);
+    border-color: rgba(167,139,250,0.25);
+    color: #fff;
+}
+
+.theme-midnight-gala .board-field__input::placeholder {
+    color: rgba(255,255,255,0.25);
+}
+
+.theme-midnight-gala .board-field__input:focus {
+    border-color: #A78BFA;
+    box-shadow: 0 0 0 3px rgba(167,139,250,0.2);
+}
+
+.theme-midnight-gala .board-form-card__actions .btn--primary {
+    background: #A78BFA;
+    border-color: #A78BFA;
+    color: #0F0A1E;
+}
+
+.theme-midnight-gala .board-form-card__actions .btn--primary:hover {
+    background: #8B5CF6;
+    border-color: #8B5CF6;
+}
+
+.theme-midnight-gala .message-card {
+    background: #1E1035;
+    border-color: rgba(167,139,250,0.15);
+    color: #fff;
+}
+
+.theme-midnight-gala .message-card__content {
+    color: rgba(255,255,255,0.85);
+}
+
+.theme-midnight-gala .message-card__name {
+    color: #C4B5FD;
+}
+
+.theme-midnight-gala .message-card__date {
+    color: rgba(255,255,255,0.4);
+}
+
+.theme-midnight-gala .message-card__footer {
+    border-top-color: rgba(255,255,255,0.08);
+}
+
+.theme-midnight-gala .board-messages__title {
+    color: #C4B5FD;
+}
+
+.theme-midnight-gala .board-no-messages__text {
+    color: rgba(255,255,255,0.5);
+}
+
+
+/* ============================================================
+   13. Golden Hour (Event — Polaroid)
+   Warm cream, rich amber, sun-drenched feel.
+   ============================================================ */
+
+.theme-golden-hour {
+    background: #FFFBEB;
+}
+
+.theme-golden-hour .board-header {
+    background: linear-gradient(135deg, #92400E 0%, #78350F 100%);
+}
+
+.theme-golden-hour .board-header__occasion {
+    color: #FDE68A;
+}
+
+.theme-golden-hour .board-header__stat--limit {
+    color: #FDE68A;
+}
+
+.theme-golden-hour .board-form-card {
+    background: #FFFDF5;
+    border-color: #FDE68A;
+    box-shadow: 0 4px 16px rgba(245,158,11,0.1);
+}
+
+.theme-golden-hour .board-field__input {
+    background: #FFFEF8;
+    border-color: #FDE68A;
+}
+
+.theme-golden-hour .board-field__input:focus {
+    border-color: #F59E0B;
+    box-shadow: 0 0 0 3px rgba(245,158,11,0.2);
+}
+
+.theme-golden-hour .board-form-card__actions .btn--primary {
+    background: #F59E0B;
+    border-color: #F59E0B;
+    color: #78350F;
+}
+
+.theme-golden-hour .board-form-card__actions .btn--primary:hover {
+    background: #D97706;
+    border-color: #D97706;
+}
+
+.theme-golden-hour .message-card__name {
+    color: #92400E;
+}
+
+.theme-golden-hour .board-messages__title {
+    color: #78350F;
+}
+
+
+/* ============================================================
+   14. Confetti Burst (Event — Grid)
+   Light blue/indigo background, hot pink accent, joyful.
+   ============================================================ */
+
+.theme-confetti-burst {
+    background: #EEF2FF;
+}
+
+.theme-confetti-burst .board-header {
+    background: linear-gradient(135deg, #4F46E5 0%, #4338CA 100%);
+}
+
+.theme-confetti-burst .board-header__occasion {
+    color: #FDE68A;
+}
+
+.theme-confetti-burst .board-header__stat--limit {
+    color: #FDE68A;
+}
+
+.theme-confetti-burst .board-form-card {
+    background: #fff;
+    border-color: #C7D2FE;
+}
+
+.theme-confetti-burst .board-field__input {
+    border-color: #C7D2FE;
+}
+
+.theme-confetti-burst .board-field__input:focus {
+    border-color: #EC4899;
+    box-shadow: 0 0 0 3px rgba(236,72,153,0.15);
+}
+
+.theme-confetti-burst .board-form-card__actions .btn--primary {
+    background: #EC4899;
+    border-color: #EC4899;
+    color: #fff;
+}
+
+.theme-confetti-burst .board-form-card__actions .btn--primary:hover {
+    background: #DB2777;
+    border-color: #DB2777;
+}
+
+.theme-confetti-burst .message-card {
+    background: #fff;
+    border-color: #C7D2FE;
+}
+
+.theme-confetti-burst .message-card__name {
+    color: #4F46E5;
+}
+
+.theme-confetti-burst .board-messages__title {
+    color: #3730A3;
+}
+
+
+/* ============================================================
+   Responsive layout adjustments
+   ============================================================ */
+
+@media (max-width: 768px) {
+    .layout--masonry .board-messages__grid {
+        columns: 2;
+    }
+
+    .layout--scattered .message-card:nth-child(odd),
+    .layout--scattered .message-card:nth-child(even),
+    .layout--scattered .message-card:nth-child(3n) {
+        transform: none;
+    }
+
+    .layout--polaroid .message-card:nth-child(odd),
+    .layout--polaroid .message-card:nth-child(even) {
+        transform: none;
+    }
+}
+
+@media (max-width: 480px) {
+    .layout--masonry .board-messages__grid {
+        columns: 1;
+    }
+}

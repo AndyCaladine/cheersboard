@@ -5,10 +5,11 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/pages/board.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/pages/themes.css') }}">
 {% endblock %}
 
 {% block content %}
-<div class="board-page">
+<div class="board-page {{ board.theme_css_class }} layout--{{ board.layout_type }}">
 
     <!-- ============================================================
          Board header
@@ -50,10 +51,14 @@
 
     <div class="board-page__inner">
 
-        <!-- ============================================================
-             Message form / board full notice
-             ============================================================ -->
-        {% if board_full %}
+        {% if already_submitted and not board_full %}
+        <div class="board-form-card" style="text-align:center; padding: 2.5rem;">
+            <div style="font-size:2.5rem; margin-bottom:0.75rem;">🎉</div>
+            <h2 class="board-form-card__title">Thanks for your message!</h2>
+            <p class="board-form-card__desc">Your message has been added to the board.</p>
+        </div>
+
+        {% elif board_full %}
         <div class="board-full">
             <div class="board-full__icon">🎉</div>
             <h2 class="board-full__title">This board is full!</h2>
@@ -63,6 +68,7 @@
                 <strong>{{ board.owner_first_name }}</strong> directly.
             </p>
         </div>
+
         {% else %}
         <section class="board-form-card">
             <h2 class="board-form-card__title">Leave a message 💌</h2>

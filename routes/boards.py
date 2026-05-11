@@ -342,6 +342,8 @@ def view_board(slug):
                     )
                 )
                 conn.commit()
+                session[f"board_submitted_{slug}"] = True
+
 
                 if board["moderation_enabled"]:
                     flash("Your message has been submitted and is awaiting approval.", "success")
@@ -366,6 +368,8 @@ def view_board(slug):
 
     # Check if viewer is the board owner
     is_owner = session.get("user_id") == board["owner_user_id"]
+    already_submitted = session.get(f"board_submitted_{slug}", False)
+
 
     return render_template(
         "board.html",
@@ -377,6 +381,8 @@ def view_board(slug):
         errors=errors,
         form_data=form_data,
         is_owner=is_owner,
+        already_submitted=already_submitted,
+
     )
 
 
