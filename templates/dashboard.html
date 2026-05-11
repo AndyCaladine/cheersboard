@@ -21,22 +21,6 @@
                     Ready to create something worth celebrating?
                 </p>
             </div>
-            <div class="dashboard__controls">
-                <!-- Dark / light toggle -->
-                <div class="theme-toggle" title="Switch between dark and light mode">
-                    <span class="theme-toggle__icon">🌙</span>
-                    <label class="theme-toggle__switch">
-                        <input
-                            type="checkbox"
-                            id="theme-toggle-input"
-                            class="theme-toggle__input"
-                            {% if theme == 'light' %}checked{% endif %}
-                        >
-                        <span class="theme-toggle__slider"></span>
-                    </label>
-                    <span class="theme-toggle__icon">☀️</span>
-                </div>
-            </div>
         </div>
 
 
@@ -76,8 +60,7 @@
                     </div>
                     <div class="board-card__actions">
                         <a href="/board/{{ board.slug }}" class="btn btn--sm btn--outline">View Board</a>
-                        <a href="#" class="btn btn--sm btn--ghost-dark">Manage</a>
-                    </div>
+                        <a href="{{ url_for('boards.board_settings', slug=board.slug) }}" class="btn btn--sm btn--ghost-dark">Manage</a>                    </div>
                 </div>
                 {% endfor %}
             </div>
@@ -426,25 +409,6 @@
 
 {% block extra_js %}
 <script>
-// ============================================================
-// Dark / light theme toggle
-// ============================================================
-const toggleInput = document.getElementById('theme-toggle-input');
-const body = document.body;
-
-toggleInput.addEventListener('change', () => {
-    const preference = toggleInput.checked ? 'light' : 'dark';
-
-    body.classList.remove('theme--dark', 'theme--light');
-    body.classList.add('theme--' + preference);
-
-    fetch('/dashboard/theme', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ preference })
-    });
-});
-
 // ============================================================
 // Expandable preview panels
 // ============================================================

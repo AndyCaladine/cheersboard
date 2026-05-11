@@ -2,15 +2,15 @@ from flask import Blueprint, flash, redirect, render_template, request, session,
 from utils.db import get_db_connection
 import re
 import secrets
- 
- 
+
+
 boards_bp = Blueprint("boards", __name__)
 
 
 # ============================================================
 # Helpers
 # ============================================================
- 
+
 def login_required(f):
     """Simple session-based auth guard."""
     from functools import wraps
@@ -21,8 +21,23 @@ def login_required(f):
             return redirect(url_for("auth.login"))
         return f(*args, **kwargs)
     return decorated
- 
- 
+
+
+def get_theme_preference():
+    """Return the logged-in user's theme preference, defaulting to dark."""
+    if "user_id" not in session:
+        return "dark"
+    conn = get_db_connection()
+    try:
+        user = conn.execute(
+            "SELECT theme_preference FROM users WHERE id = ? AND is_active = 1",
+            (session["user_id"],)
+        ).fetchone()
+        return user["theme_preference"] if user else "dark"
+    finally:
+        conn.close()
+
+
 def generate_slug(title):
     """
     Turn a board title into a URL-safe slug.
@@ -41,12 +56,12 @@ def generate_slug(title):
 # ============================================================
 # Dashboard
 # ============================================================
- 
+
 @boards_bp.route("/dashboard")
 def dashboard():
     if "user_id" not in session:
         return redirect(url_for("auth.login"))
- 
+
     conn = get_db_connection()
     try:
         user = conn.execute(
@@ -57,12 +72,12 @@ def dashboard():
             """,
             (session["user_id"],)
         ).fetchone()
- 
+
         if not user:
             session.clear()
             flash("Your session has expired. Please log in again.", "error")
             return redirect(url_for("auth.login"))
- 
+
         boards = conn.execute(
             """
             SELECT
@@ -88,33 +103,33 @@ def dashboard():
             """,
             (session["user_id"],)
         ).fetchall()
- 
+
     finally:
         conn.close()
- 
+
     return render_template(
         "dashboard.html",
         user=user,
         boards=boards,
         theme=user["theme_preference"],
     )
- 
-  
+
+
 # ============================================================
 # Toggle theme preference
 # ============================================================
- 
+
 @boards_bp.route("/dashboard/theme", methods=["POST"])
 def toggle_theme():
     if "user_id" not in session:
         return jsonify({"error": "Unauthorised"}), 401
- 
+
     data = request.get_json()
     preference = data.get("preference", "dark")
- 
+
     if preference not in ("dark", "light"):
         return jsonify({"error": "Invalid preference"}), 400
- 
+
     conn = get_db_connection()
     try:
         conn.execute(
@@ -131,23 +146,23 @@ def toggle_theme():
         conn.commit()
     finally:
         conn.close()
- 
+
     return jsonify({"preference": preference})
+
 
 # ============================================================
 # Create board
 # ============================================================
- 
+
 @boards_bp.route("/create", methods=["GET", "POST"])
 @login_required
 def create_board():
     conn = get_db_connection()
- 
     try:
         occasions = conn.execute(
             "SELECT id, name, slug FROM occasions WHERE is_active = 1 ORDER BY display_order"
         ).fetchall()
- 
+
         themes = conn.execute(
             """
             SELECT id, name, slug, layout_type, tier_required, css_class
@@ -158,47 +173,37 @@ def create_board():
         ).fetchall()
     finally:
         conn.close()
- 
-    # ── Tier pricing map ──────────────────────────────────────
-    TIER_PRICES = {
-        'free':    0,
-        'lite':    499,
-        'premium': 999,
-        'event':   1999,
-    }
- 
+
+    theme = get_theme_preference()
     errors = {}
- 
+
     if request.method == "POST":
-        # ── Collect fields ────────────────────────────────────
         board_name      = request.form.get("board_name",      "").strip()
         recipient_name  = request.form.get("recipient_name",  "").strip()
         occasion_id     = request.form.get("occasion_id",     "").strip()
         theme_id        = request.form.get("theme_id",        "").strip()
         event_date      = request.form.get("event_date",      "").strip()
         creator_message = request.form.get("creator_message", "").strip()
- 
-        # ── Validate ──────────────────────────────────────────
+
         if not board_name:
             errors["board_name"] = "Board name is required."
         elif len(board_name) > 80:
             errors["board_name"] = "Board name must be 80 characters or fewer."
- 
+
         if not recipient_name:
             errors["recipient_name"] = "Recipient name is required."
         elif len(recipient_name) > 80:
             errors["recipient_name"] = "Recipient name must be 80 characters or fewer."
- 
+
         if not occasion_id:
             errors["occasion_id"] = "Please choose an occasion."
- 
+
         if not theme_id:
             errors["theme_id"] = "Please choose a theme."
- 
+
         if len(creator_message) > 500:
             errors["creator_message"] = "Your message must be 500 characters or fewer."
- 
-        # ── Resolve theme tier ────────────────────────────────
+
         selected_theme = None
         if theme_id and not errors.get("theme_id"):
             conn = get_db_connection()
@@ -209,16 +214,15 @@ def create_board():
                 ).fetchone()
             finally:
                 conn.close()
- 
+
             if not selected_theme:
                 errors["theme_id"] = "Invalid theme selected."
- 
-        # ── Write to DB if clean ──────────────────────────────
+
         if not errors and selected_theme:
-            tier      = selected_theme["tier_required"]
-            is_paid   = 1 if tier == "free" else 0
-            slug      = generate_slug(board_name)
- 
+            tier    = selected_theme["tier_required"]
+            is_paid = 1 if tier == "free" else 0
+            slug    = generate_slug(board_name)
+
             conn = get_db_connection()
             try:
                 conn.execute(
@@ -243,23 +247,22 @@ def create_board():
                     )
                 )
                 conn.commit()
- 
-                board_id = conn.execute("SELECT last_insert_rowid()").fetchone()[0]
- 
             finally:
                 conn.close()
- 
-            # Free boards go straight to the board settings page.
-            # Paid boards go there too — checkout is triggered from settings.
-            flash(f"Board created! {'Share it below.' if tier == 'free' else 'Complete your payment to unlock it.'}", "success")
+
+            flash(
+                f"Board created! {'Share it below.' if tier == 'free' else 'Complete your payment to unlock it.'}",
+                "success"
+            )
             return redirect(url_for("boards.board_settings", slug=slug))
- 
+
     return render_template(
         "create_board.html",
         occasions=occasions,
         themes=themes,
         errors=errors,
         form=request.form,
+        theme=theme,
         tier_prices={
             'free':    '£0',
             'lite':    '£4.99',
@@ -267,12 +270,12 @@ def create_board():
             'event':   '£19.99',
         }
     )
- 
- 
+
+
 # ============================================================
-# Board settings (Placeholder)
+# Board settings
 # ============================================================
- 
+
 @boards_bp.route("/board/<slug>/settings")
 @login_required
 def board_settings(slug):
@@ -290,9 +293,17 @@ def board_settings(slug):
         ).fetchone()
     finally:
         conn.close()
- 
+
     if not board:
         flash("Board not found.", "error")
         return redirect(url_for("boards.dashboard"))
- 
-    return render_template("board_settings.html", board=board)
+
+    ui_theme = get_theme_preference()
+    board_url = request.host_url.rstrip('/') + '/board/' + board['slug']
+
+    return render_template(
+        "board_settings.html",
+        board=board,
+        ui_theme=ui_theme,
+        board_url=board_url,
+    )

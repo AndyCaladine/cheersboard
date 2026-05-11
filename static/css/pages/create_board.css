@@ -1,7 +1,24 @@
 /* ============================================================
    CheersBoard — create_board.css
    Page styles for the Create Board form.
+   Supports dark and light themes via .theme--dark / .theme--light
+   on the body element, passed from the user's preference.
    ============================================================ */
+
+
+/* ============================================================
+   Page background
+   ============================================================ */
+
+.page--create-board {
+    background: var(--color-white);
+    min-height: 100vh;
+    transition: background 0.3s ease;
+}
+
+.theme--dark.page--create-board {
+    background: #141B2D;
+}
 
 
 /* ============================================================
@@ -39,9 +56,17 @@
     margin-bottom: 0.375rem;
 }
 
+.theme--dark .cb-form-header__title {
+    color: var(--color-white);
+}
+
 .cb-form-header__sub {
     color: var(--color-text-muted);
     font-size: 1rem;
+}
+
+.theme--dark .cb-form-header__sub {
+    color: rgba(255,255,255,0.55);
 }
 
 
@@ -62,16 +87,28 @@
     margin-bottom: 0.25rem;
 }
 
+.theme--dark .cb-field__label {
+    color: var(--color-white);
+}
+
 .cb-field__optional {
     font-weight: 400;
     color: var(--color-text-muted);
     font-size: 0.875rem;
 }
 
+.theme--dark .cb-field__optional {
+    color: rgba(255,255,255,0.45);
+}
+
 .cb-field__hint {
     font-size: 0.875rem;
     color: var(--color-text-muted);
     margin-bottom: 0.625rem;
+}
+
+.theme--dark .cb-field__hint {
+    color: rgba(255,255,255,0.55);
 }
 
 .cb-field__input,
@@ -89,10 +126,32 @@
     outline: none;
 }
 
+.theme--dark .cb-field__input,
+.theme--dark .cb-field__textarea {
+    background: rgba(255,255,255,0.07);
+    border-color: rgba(255,255,255,0.12);
+    color: var(--color-white);
+}
+
+.cb-field__input::placeholder,
+.cb-field__textarea::placeholder {
+    color: var(--color-text-muted);
+}
+
+.theme--dark .cb-field__input::placeholder,
+.theme--dark .cb-field__textarea::placeholder {
+    color: rgba(255,255,255,0.25);
+}
+
 .cb-field__input:focus,
 .cb-field__textarea:focus {
     border-color: var(--color-teal);
     box-shadow: 0 0 0 3px rgba(42, 191, 191, 0.15);
+}
+
+.theme--dark .cb-field__input:focus,
+.theme--dark .cb-field__textarea:focus {
+    background: rgba(255,255,255,0.1);
 }
 
 .cb-field__input--date {
@@ -109,6 +168,10 @@
     font-size: 0.8125rem;
     color: var(--color-text-muted);
     margin-top: 0.25rem;
+}
+
+.theme--dark .cb-field__count {
+    color: rgba(255,255,255,0.4);
 }
 
 .cb-field__error {
@@ -150,6 +213,12 @@
     user-select: none;
 }
 
+.theme--dark .cb-occasion-pill {
+    background: rgba(255,255,255,0.05);
+    border-color: rgba(255,255,255,0.12);
+    color: rgba(255,255,255,0.85);
+}
+
 .cb-occasion-pill input[type="radio"] {
     display: none;
 }
@@ -157,6 +226,10 @@
 .cb-occasion-pill:hover {
     border-color: var(--color-teal);
     background: rgba(42, 191, 191, 0.06);
+}
+
+.theme--dark .cb-occasion-pill:hover {
+    background: rgba(42, 191, 191, 0.1);
 }
 
 .cb-occasion-pill--selected,
@@ -185,6 +258,10 @@
     margin-bottom: 0.75rem;
 }
 
+.theme--dark .cb-theme-group__label {
+    color: rgba(255,255,255,0.45);
+}
+
 .cb-theme-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
@@ -201,6 +278,11 @@
     transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
     background: var(--color-white);
     user-select: none;
+}
+
+.theme--dark .cb-theme-card {
+    background: rgba(255,255,255,0.05);
+    border-color: rgba(255,255,255,0.12);
 }
 
 .cb-theme-card input[type="radio"] {
@@ -239,16 +321,23 @@
     line-height: 1.2;
 }
 
+.theme--dark .cb-theme-card__name {
+    color: var(--color-white);
+}
+
 .cb-theme-card__layout {
     font-size: 0.75rem;
     color: var(--color-text-muted);
+}
+
+.theme--dark .cb-theme-card__layout {
+    color: rgba(255,255,255,0.45);
 }
 
 
 /* ============================================================
    Theme swatches
    Each swatch uses the theme's bg and accent colours.
-   These mirror the values in the theme registry.
    ============================================================ */
 
 .theme-classic            { background: linear-gradient(135deg, #F7F5F2 60%, #FF6B6B 60%); }
@@ -279,13 +368,26 @@
     margin-top: 1rem;
 }
 
+.theme--dark .cb-form-actions {
+    border-top-color: rgba(255,255,255,0.1);
+}
+
 .cb-form-actions .btn--ghost {
     color: var(--color-navy);
     border-color: #E5E7EB;
 }
 
+.theme--dark .cb-form-actions .btn--ghost {
+    color: rgba(255,255,255,0.85);
+    border-color: rgba(255,255,255,0.2);
+}
+
 .cb-form-actions .btn--ghost:hover {
     background: var(--color-cream);
+}
+
+.theme--dark .cb-form-actions .btn--ghost:hover {
+    background: rgba(255,255,255,0.1);
 }
 
 
@@ -398,30 +500,6 @@
 
 
 /* ============================================================
-   Stub — board_settings placeholder
-   ============================================================ */
-
-.stub-page {
-    max-width: 640px;
-    margin: calc(var(--nav-height) + 4rem) auto;
-    padding: 0 var(--space-lg);
-    text-align: center;
-}
-
-.stub-page h1 {
-    font-family: var(--font-display);
-    font-size: 2rem;
-    color: var(--color-navy);
-    margin-bottom: 1rem;
-}
-
-.stub-page p {
-    color: var(--color-text-muted);
-    margin-bottom: 2rem;
-}
-
-
-/* ============================================================
    Responsive
    ============================================================ */
 
@@ -440,4 +518,29 @@
     .cb-theme-grid {
         grid-template-columns: repeat(2, 1fr);
     }
+}
+
+/* ============================================================
+   Dark mode sidebar — lift above page background
+   ============================================================ */
+
+.theme--dark .cb-summary {
+    background: #1E2A42;
+    border: 1px solid rgba(255,255,255,0.1);
+}
+
+/* ============================================================
+   Light mode button override — match dashboard teal
+   ============================================================ */
+
+.theme--light .btn--primary {
+    background: var(--color-teal);
+    border-color: var(--color-teal);
+    color: var(--color-white);
+}
+
+.theme--light .btn--primary:hover,
+.theme--light .btn--primary:active {
+    background: #229f9f;
+    border-color: #229f9f;
 }

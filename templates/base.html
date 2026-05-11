@@ -38,7 +38,15 @@
                             <a href="{{ url_for('auth.change_details_step1') }}" class="nav__user-item">
                                 Change Details
                             </a>
-
+                            <div class="nav__user-divider"></div>
+                            <!-- Theme toggle -->
+                            <div class="nav__user-item nav__user-item--toggle" id="themeToggleRow">
+                                <span class="nav__theme-label" id="themeToggleLabel">Dark mode</span>
+                                <label class="nav__theme-switch">
+                                    <input type="checkbox" id="navThemeInput">
+                                    <span class="nav__theme-slider"></span>
+                                </label>
+                            </div>
                             <div class="nav__user-divider"></div>
                             <a href="{{ url_for('auth.logout') }}" class="nav__user-item nav__user-item--danger">
                                 Log Out
@@ -102,14 +110,12 @@
                 userMenuDropdown.setAttribute('aria-hidden', isOpen);
             });
 
-            // Close on click outside
             document.addEventListener('click', () => {
                 userMenuDropdown.classList.remove('is-open');
                 userMenuBtn.setAttribute('aria-expanded', 'false');
                 userMenuDropdown.setAttribute('aria-hidden', 'true');
             });
 
-            // Close on Escape
             document.addEventListener('keydown', (e) => {
                 if (e.key === 'Escape') {
                     userMenuDropdown.classList.remove('is-open');
@@ -117,6 +123,50 @@
                     userMenuDropdown.setAttribute('aria-hidden', 'true');
                 }
             });
+        }
+
+        // ============================================================
+        // Global theme toggle (user menu)
+        // Reads current theme from body class, toggles on change,
+        // updates the DB via fetch, and persists across all pages.
+        // ============================================================
+        const navThemeInput = document.getElementById('navThemeInput');
+        const themeToggleLabel = document.getElementById('themeToggleLabel');
+
+        if (navThemeInput) {
+            // Detect current theme from body class and set toggle state
+            const currentTheme = document.body.classList.contains('theme--light') ? 'light' : 'dark';
+            navThemeInput.checked = currentTheme === 'light';
+            themeToggleLabel.textContent = currentTheme === 'light' ? 'Light mode' : 'Dark mode';
+
+            navThemeInput.addEventListener('change', (e) => {
+                // Prevent the click from closing the dropdown
+                e.stopPropagation();
+
+                const newTheme = navThemeInput.checked ? 'light' : 'dark';
+
+                // Swap body class immediately for instant feedback
+                document.body.classList.remove('theme--dark', 'theme--light');
+                document.body.classList.add('theme--' + newTheme);
+
+                // Update label
+                themeToggleLabel.textContent = newTheme === 'light' ? 'Light mode' : 'Dark mode';
+
+                // Persist to DB
+                fetch('/dashboard/theme', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ preference: newTheme })
+                });
+            });
+
+            // Prevent clicking the toggle row from closing the dropdown
+            const themeToggleRow = document.getElementById('themeToggleRow');
+            if (themeToggleRow) {
+                themeToggleRow.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                });
+            }
         }
     </script>
 

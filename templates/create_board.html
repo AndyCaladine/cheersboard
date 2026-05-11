@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block title %}Create a Board — CheersBoard{% endblock %}
-{% block body_class %}page--create-board{% endblock %}
+{% block body_class %}page--create-board theme--{{ theme }}{% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/pages/create_board.css') }}">

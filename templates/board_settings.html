@@ -1,20 +1,185 @@
 {% extends "base.html" %}
 
-{% block title %}Board Settings — {{ board.title }} — CheersBoard{% endblock %}
-{% block body_class %}page--board-settings{% endblock %}
+{% block title %}{{ board.title }} — Board Settings — CheersBoard{% endblock %}
+{% block body_class %}page--board-settings theme--{{ ui_theme }}{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/pages/create_board.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/pages/boards.css') }}">
 {% endblock %}
 
 {% block content %}
-<div class="stub-page">
-    <h1>{{ board.title }}</h1>
-    <p>Board created successfully. Settings page coming next session.</p>
-    <p><strong>Tier:</strong> {{ board.tier | capitalize }}</p>
-    <p><strong>For:</strong> {{ board.recipient_name }}</p>
-    <p><strong>Occasion:</strong> {{ board.occasion_name }}</p>
-    <p><strong>Theme:</strong> {{ board.theme_name }}</p>
-    <a href="{{ url_for('boards.dashboard') }}" class="btn btn--primary">Back to Dashboard</a>
+<div class="bs-layout">
+
+    <!-- ============================================================
+         Page header
+         ============================================================ -->
+    <div class="bs-header">
+        <div class="bs-header__left">
+            <a href="{{ url_for('boards.dashboard') }}" class="bs-back">← Back to dashboard</a>
+            <h1 class="bs-header__title">{{ board.title }}</h1>
+            <div class="bs-header__meta">
+                <span class="tier-badge tier-badge--{{ board.tier }}">{{ board.tier | capitalize }}</span>
+                <span class="bs-header__for">For {{ board.recipient_name }}</span>
+                {% if board.occasion_name %}
+                <span class="bs-header__occasion">· {{ board.occasion_name }}</span>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="bs-body">
+
+        <!-- ============================================================
+             Share your board
+             ============================================================ -->
+        <section class="bs-card">
+            <h2 class="bs-card__title">Share your board</h2>
+            <p class="bs-card__desc">
+                Send this link to anyone you'd like to add a message.
+                They don't need a CheersBoard account — just click and go.
+            </p>
+
+            <div class="bs-share">
+                <div class="bs-share__url-row">
+                    <input
+                        type="text"
+                        class="bs-share__url-input"
+                        id="shareUrl"
+                        value="{{ board_url }}"
+                        readonly
+                    >
+                    <button class="btn btn--primary bs-share__copy-btn" id="copyUrlBtn">
+                        Copy link
+                    </button>
+                </div>
+                <p class="bs-share__copied" id="copiedMsg" aria-live="polite"></p>
+            </div>
+
+            {% if board.tier in ('lite', 'premium', 'event') %}
+            <!-- QR Code placeholder — will be generated in a future milestone -->
+            <div class="bs-qr">
+                <div class="bs-qr__placeholder">
+                    <span class="bs-qr__icon">▦</span>
+                    <p class="bs-qr__label">QR Code</p>
+                    <p class="bs-qr__sublabel">Coming soon</p>
+                </div>
+            </div>
+            {% endif %}
+        </section>
+
+        <!-- ============================================================
+             Board details
+             ============================================================ -->
+        <section class="bs-card">
+            <h2 class="bs-card__title">Board details</h2>
+
+            <div class="bs-details">
+                <div class="bs-details__row">
+                    <span class="bs-details__label">Board name</span>
+                    <span class="bs-details__value">{{ board.title }}</span>
+                </div>
+                <div class="bs-details__row">
+                    <span class="bs-details__label">Recipient</span>
+                    <span class="bs-details__value">{{ board.recipient_name }}</span>
+                </div>
+                {% if board.occasion_name %}
+                <div class="bs-details__row">
+                    <span class="bs-details__label">Occasion</span>
+                    <span class="bs-details__value">{{ board.occasion_name }}</span>
+                </div>
+                {% endif %}
+                <div class="bs-details__row">
+                    <span class="bs-details__label">Theme</span>
+                    <span class="bs-details__value">{{ board.theme_name }}</span>
+                </div>
+                <div class="bs-details__row">
+                    <span class="bs-details__label">Tier</span>
+                    <span class="bs-details__value">
+                        <span class="tier-badge tier-badge--{{ board.tier }}">{{ board.tier | capitalize }}</span>
+                    </span>
+                </div>
+                <div class="bs-details__row">
+                    <span class="bs-details__label">Status</span>
+                    <span class="bs-details__value bs-details__value--{{ board.status }}">{{ board.status | capitalize }}</span>
+                </div>
+                <div class="bs-details__row">
+                    <span class="bs-details__label">Created</span>
+                    <span class="bs-details__value">{{ board.created_at | format_datetime }}</span>                </div>
+            </div>
+        </section>
+
+        <!-- ============================================================
+             Upgrade prompt (free boards only)
+             ============================================================ -->
+        {% if board.tier == 'free' %}
+        <section class="bs-card bs-card--upgrade">
+            <div class="bs-upgrade">
+                <div class="bs-upgrade__text">
+                    <h2 class="bs-card__title">Unlock more with a paid tier</h2>
+                    <p class="bs-card__desc">
+                        Free boards support up to 10 messages. Upgrade to get more messages,
+                        more themes, QR codes, PDF export and more.
+                    </p>
+                    <ul class="bs-upgrade__list">
+                        <li>Lite (£4.99) — up to 30 messages, QR code, PDF export</li>
+                        <li>Premium (£9.99) — unlimited messages, moderation, all themes</li>
+                        <li>Event (£19.99) — live slideshow, OBS source, embed anywhere</li>
+                    </ul>
+                </div>
+                <div class="bs-upgrade__action">
+                    <a href="#" class="btn btn--primary bs-upgrade__btn">
+                        Upgrade this board
+                    </a>
+                    <p class="bs-upgrade__note">One-off payment. No subscription.</p>
+                </div>
+            </div>
+        </section>
+        {% endif %}
+
+        <!-- ============================================================
+             Danger zone
+             ============================================================ -->
+        <section class="bs-card bs-card--danger">
+            <h2 class="bs-card__title bs-card__title--danger">Danger zone</h2>
+            <p class="bs-card__desc">
+                Archiving a board hides it from contributors but keeps all messages safe.
+                You can unarchive it at any time from your dashboard.
+            </p>
+            <button class="btn bs-danger-btn" disabled title="Coming soon">
+                Archive this board
+            </button>
+        </section>
+
+    </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // ============================================================
+    // Copy share URL to clipboard
+    // ============================================================
+    const copyBtn = document.getElementById('copyUrlBtn');
+    const shareUrl = document.getElementById('shareUrl');
+    const copiedMsg = document.getElementById('copiedMsg');
+
+    if (copyBtn && shareUrl) {
+        copyBtn.addEventListener('click', () => {
+            navigator.clipboard.writeText(shareUrl.value).then(() => {
+                copiedMsg.textContent = 'Link copied to clipboard!';
+                copyBtn.textContent = 'Copied!';
+                setTimeout(() => {
+                    copiedMsg.textContent = '';
+                    copyBtn.textContent = 'Copy link';
+                }, 3000);
+            }).catch(() => {
+                // Fallback for older browsers
+                shareUrl.select();
+                document.execCommand('copy');
+                copiedMsg.textContent = 'Link copied!';
+                setTimeout(() => { copiedMsg.textContent = ''; }, 3000);
+            });
+        });
+    }
+</script>
 {% endblock %}
