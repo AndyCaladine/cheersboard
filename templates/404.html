@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block title %}404 — Page Not Found — CheersBoard{% endblock %}
+{% block body_class %}page--404{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/pages/404.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="error-404">
+    <div class="error-404__inner">
+        <img
+            src="{{ url_for('static', filename='images/404.png') }}"
+            alt="404 — Well, this is awkward"
+            class="error-404__image"
+        >
+        <a href="{{ url_for('home') }}" class="btn btn--primary btn--lg error-404__btn">
+            Back to CheersBoard
+        </a>
+    </div>
+</div>
+{% endblock %}

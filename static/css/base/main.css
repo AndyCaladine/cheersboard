@@ -921,3 +921,4 @@ h1, h2, h3, h4 {
 .nav__theme-switch input:checked + .nav__theme-slider::before {
     transform: translateY(-50%) translateX(20px);
 }
+

@@ -1,4 +1,4 @@
-from flask import Blueprint, flash, redirect, render_template, request, session, url_for, jsonify
+from flask import Blueprint, flash, redirect, render_template, request, session, url_for, jsonify, abort
 from utils.db import get_db_connection
 import re
 import secrets
@@ -42,7 +42,6 @@ def generate_slug(title):
     """
     Turn a board title into a URL-safe slug.
     Appends a short random suffix to avoid collisions.
-    e.g. "Sarah's 30th!" -> "sarahs-30th-a3f9"
     """
     slug = title.lower()
     slug = re.sub(r"[^\w\s-]", "", slug)
@@ -51,6 +50,15 @@ def generate_slug(title):
     slug = slug[:40]
     suffix = secrets.token_hex(2)
     return f"{slug}-{suffix}"
+
+
+# Message limits per tier
+MESSAGE_LIMITS = {
+    'free':    10,
+    'lite':    30,
+    'premium': None,
+    'event':   None,
+}
 
 
 # ============================================================
@@ -81,14 +89,8 @@ def dashboard():
         boards = conn.execute(
             """
             SELECT
-                b.id,
-                b.title,
-                b.recipient_name,
-                b.slug,
-                b.tier,
-                b.status,
-                b.is_paid,
-                b.created_at,
+                b.id, b.title, b.recipient_name, b.slug, b.tier,
+                b.status, b.is_paid, b.created_at,
                 o.name AS occasion_name,
                 t.name AS theme_name,
                 t.css_class AS theme_css_class,
@@ -166,9 +168,7 @@ def create_board():
         themes = conn.execute(
             """
             SELECT id, name, slug, layout_type, tier_required, css_class
-            FROM themes
-            WHERE is_active = 1
-            ORDER BY display_order
+            FROM themes WHERE is_active = 1 ORDER BY display_order
             """,
         ).fetchall()
     finally:
@@ -234,16 +234,9 @@ def create_board():
                     ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                     """,
                     (
-                        session["user_id"],
-                        board_name,
-                        recipient_name,
-                        slug,
-                        occasion_id,
-                        theme_id,
-                        tier,
-                        is_paid,
-                        session["user_id"],
-                        "customer",
+                        session["user_id"], board_name, recipient_name, slug,
+                        occasion_id, theme_id, tier, is_paid,
+                        session["user_id"], "customer",
                     )
                 )
                 conn.commit()
@@ -264,11 +257,126 @@ def create_board():
         form=request.form,
         theme=theme,
         tier_prices={
-            'free':    '£0',
-            'lite':    '£4.99',
-            'premium': '£9.99',
-            'event':   '£19.99',
+            'free': '£0', 'lite': '£4.99',
+            'premium': '£9.99', 'event': '£19.99',
         }
+    )
+
+
+# ============================================================
+# Public board view
+# ============================================================
+
+@boards_bp.route("/board/<slug>", methods=["GET", "POST"])
+def view_board(slug):
+    conn = get_db_connection()
+    try:
+        board = conn.execute(
+            """
+            SELECT b.*, o.name AS occasion_name, t.name AS theme_name,
+                   t.css_class AS theme_css_class, t.layout_type,
+                   u.first_name AS owner_first_name
+            FROM boards b
+            LEFT JOIN occasions o ON b.occasion_id = o.id
+            LEFT JOIN themes t ON b.theme_id = t.id
+            LEFT JOIN users u ON b.owner_user_id = u.id
+            WHERE b.slug = ? AND b.status = 'active'
+            """,
+            (slug,)
+        ).fetchone()
+
+        if not board:
+            return render_template("404.html"), 404
+
+        # Message limit for this tier
+        limit = MESSAGE_LIMITS.get(board["tier"])
+
+        # Count visible approved messages
+        message_count = conn.execute(
+            """
+            SELECT COUNT(*) FROM messages
+            WHERE board_id = ? AND is_hidden = 0
+            AND (is_approved = 1 OR ? = 0)
+            """,
+            (board["id"], board["moderation_enabled"])
+        ).fetchone()[0]
+
+        board_full = limit is not None and message_count >= limit
+
+        errors = {}
+        form_data = {}
+
+        if request.method == "POST" and not board_full:
+            sender_name  = request.form.get("sender_name",  "").strip()
+            sender_email = request.form.get("sender_email", "").strip().lower()
+            content      = request.form.get("content",      "").strip()
+
+            if not sender_name:
+                errors["sender_name"] = "Please enter your name."
+            elif len(sender_name) > 80:
+                errors["sender_name"] = "Name must be 80 characters or fewer."
+
+            if sender_email and "@" not in sender_email:
+                errors["sender_email"] = "Please enter a valid email address."
+
+            if not content:
+                errors["content"] = "Please write a message."
+            elif len(content) > 1000:
+                errors["content"] = "Message must be 1000 characters or fewer."
+
+            form_data = request.form.to_dict()
+
+            if not errors:
+                # If moderation is on, hold for approval; otherwise approve immediately
+                is_approved = 0 if board["moderation_enabled"] else 1
+
+                conn.execute(
+                    """
+                    INSERT INTO messages
+                        (board_id, sender_name, sender_email, content, is_approved)
+                    VALUES (?, ?, ?, ?, ?)
+                    """,
+                    (
+                        board["id"], sender_name,
+                        sender_email or None, content, is_approved
+                    )
+                )
+                conn.commit()
+
+                if board["moderation_enabled"]:
+                    flash("Your message has been submitted and is awaiting approval.", "success")
+                else:
+                    flash("Your message has been added to the board!", "success")
+
+                return redirect(url_for("boards.view_board", slug=slug))
+
+        # Fetch approved visible messages
+        messages = conn.execute(
+            """
+            SELECT sender_name, content, created_at
+            FROM messages
+            WHERE board_id = ? AND is_hidden = 0 AND is_approved = 1
+            ORDER BY created_at ASC
+            """,
+            (board["id"],)
+        ).fetchall()
+
+    finally:
+        conn.close()
+
+    # Check if viewer is the board owner
+    is_owner = session.get("user_id") == board["owner_user_id"]
+
+    return render_template(
+        "board.html",
+        board=board,
+        messages=messages,
+        message_count=message_count,
+        board_full=board_full,
+        limit=limit,
+        errors=errors,
+        form_data=form_data,
+        is_owner=is_owner,
     )
 
 
@@ -286,7 +394,7 @@ def board_settings(slug):
             SELECT b.*, o.name AS occasion_name, t.name AS theme_name
             FROM boards b
             LEFT JOIN occasions o ON b.occasion_id = o.id
-            LEFT JOIN themes    t ON b.theme_id    = t.id
+            LEFT JOIN themes t ON b.theme_id = t.id
             WHERE b.slug = ? AND b.owner_user_id = ?
             """,
             (slug, session["user_id"])
@@ -298,7 +406,7 @@ def board_settings(slug):
         flash("Board not found.", "error")
         return redirect(url_for("boards.dashboard"))
 
-    ui_theme = get_theme_preference()
+    ui_theme  = get_theme_preference()
     board_url = request.host_url.rstrip('/') + '/board/' + board['slug']
 
     return render_template(

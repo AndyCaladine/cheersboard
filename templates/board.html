@@ -1,0 +1,184 @@
+{% extends "base.html" %}
+
+{% block title %}{{ board.title }} — CheersBoard{% endblock %}
+{% block body_class %}page--board{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/pages/board.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="board-page">
+
+    <!-- ============================================================
+         Board header
+         ============================================================ -->
+    <div class="board-header">
+        <div class="board-header__inner">
+
+            <div class="board-header__top">
+                <span class="board-header__occasion">{{ board.occasion_name }}</span>
+                {% if is_owner %}
+                <a href="{{ url_for('boards.board_settings', slug=board.slug) }}" class="board-header__settings-link">
+                    Manage board →
+                </a>
+                {% endif %}
+            </div>
+
+            <h1 class="board-header__title">{{ board.title }}</h1>
+            <p class="board-header__recipient">A board for <strong>{{ board.recipient_name }}</strong></p>
+
+            {% if board.creator_message %}
+            <div class="board-header__creator-msg">
+                <p class="board-header__creator-msg-text">"{{ board.creator_message }}"</p>
+            </div>
+            {% endif %}
+
+            <div class="board-header__stats">
+                <span class="board-header__stat">
+                    💬 {{ message_count }} message{{ 's' if message_count != 1 else '' }}
+                </span>
+                {% if limit %}
+                <span class="board-header__stat board-header__stat--limit">
+                    · {{ limit - message_count }} spot{{ 's' if (limit - message_count) != 1 else '' }} remaining
+                </span>
+                {% endif %}
+            </div>
+
+        </div>
+    </div>
+
+    <div class="board-page__inner">
+
+        <!-- ============================================================
+             Message form / board full notice
+             ============================================================ -->
+        {% if board_full %}
+        <div class="board-full">
+            <div class="board-full__icon">🎉</div>
+            <h2 class="board-full__title">This board is full!</h2>
+            <p class="board-full__body">
+                This board has reached its message limit.
+                If you'd like to add a message, get in touch with
+                <strong>{{ board.owner_first_name }}</strong> directly.
+            </p>
+        </div>
+        {% else %}
+        <section class="board-form-card">
+            <h2 class="board-form-card__title">Leave a message 💌</h2>
+            <p class="board-form-card__desc">Add your message to this board — no account needed.</p>
+
+            <form method="POST" action="{{ url_for('boards.view_board', slug=board.slug) }}" novalidate>
+
+                <div class="board-field {% if errors.sender_name %}board-field--error{% endif %}">
+                    <label class="board-field__label" for="sender_name">
+                        Your name <span class="board-field__required">*</span>
+                    </label>
+                    <input
+                        class="board-field__input"
+                        type="text"
+                        id="sender_name"
+                        name="sender_name"
+                        value="{{ form_data.get('sender_name', '') }}"
+                        placeholder="e.g. Jane Smith"
+                        maxlength="80"
+                        autocomplete="name"
+                    >
+                    {% if errors.sender_name %}
+                    <p class="board-field__error">{{ errors.sender_name }}</p>
+                    {% endif %}
+                </div>
+
+                <div class="board-field {% if errors.sender_email %}board-field--error{% endif %}">
+                    <label class="board-field__label" for="sender_email">
+                        Email address <span class="board-field__optional">(optional)</span>
+                    </label>
+                    <input
+                        class="board-field__input"
+                        type="email"
+                        id="sender_email"
+                        name="sender_email"
+                        value="{{ form_data.get('sender_email', '') }}"
+                        placeholder="jane@example.com"
+                        autocomplete="email"
+                    >
+                    <p class="board-field__hint">Only used if the board owner needs to contact you. Never shown publicly.</p>
+                    {% if errors.sender_email %}
+                    <p class="board-field__error">{{ errors.sender_email }}</p>
+                    {% endif %}
+                </div>
+
+                <div class="board-field {% if errors.content %}board-field--error{% endif %}">
+                    <label class="board-field__label" for="content">
+                        Your message <span class="board-field__required">*</span>
+                    </label>
+                    <textarea
+                        class="board-field__input board-field__textarea"
+                        id="content"
+                        name="content"
+                        rows="5"
+                        maxlength="1000"
+                        placeholder="Write something wonderful…"
+                    >{{ form_data.get('content', '') }}</textarea>
+                    <p class="board-field__count"><span id="msgCount">0</span>/1000</p>
+                    {% if errors.content %}
+                    <p class="board-field__error">{{ errors.content }}</p>
+                    {% endif %}
+                </div>
+
+                {% if board.moderation_enabled %}
+                <p class="board-form-card__moderation-note">
+                    Messages on this board are reviewed before they appear.
+                </p>
+                {% endif %}
+
+                <div class="board-form-card__actions">
+                    <button type="submit" class="btn btn--primary btn--lg">
+                        Send my message 🎉
+                    </button>
+                </div>
+
+            </form>
+        </section>
+        {% endif %}
+
+        <!-- ============================================================
+             Messages grid
+             ============================================================ -->
+        {% if messages %}
+        <section class="board-messages">
+            <h2 class="board-messages__title">Messages</h2>
+            <div class="board-messages__grid">
+                {% for message in messages %}
+                <div class="message-card">
+                    <p class="message-card__content">{{ message.content }}</p>
+                    <div class="message-card__footer">
+                        <span class="message-card__name">— {{ message.sender_name }}</span>
+                        <span class="message-card__date">{{ message.created_at | format_date }}</span>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+        {% elif not board_full %}
+        <div class="board-no-messages">
+            <p class="board-no-messages__text">No messages yet — be the first! 🎊</p>
+        </div>
+        {% endif %}
+
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const textarea = document.getElementById('content');
+    const counter = document.getElementById('msgCount');
+    if (textarea && counter) {
+        counter.textContent = textarea.value.length;
+        textarea.addEventListener('input', () => {
+            counter.textContent = textarea.value.length;
+        });
+    }
+</script>
+{% endblock %}
