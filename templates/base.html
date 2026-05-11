@@ -26,7 +26,25 @@
                 <a href="{{ url_for('main.contact') }}" class="nav__link">Contact</a>
                 {% if session.get("user_id") %}
                     <a href="{{ url_for('boards.dashboard') }}" class="nav__link">My Boards</a>
-                    <a href="{{ url_for('auth.logout') }}" class="nav__link">Log Out</a>
+                    <!-- User menu -->
+                    <div class="nav__user-menu" id="userMenu">
+                        <button class="nav__user-btn" id="userMenuBtn" aria-haspopup="true" aria-expanded="false">
+                            Hi, {{ session.get("user_name", "there") }} <span class="nav__user-chevron">▾</span>
+                        </button>
+                        <div class="nav__user-dropdown" id="userMenuDropdown" aria-hidden="true">
+                            <a href="{{ url_for('auth.change_password') }}" class="nav__user-item">
+                                Change Password
+                            </a>
+                            <a href="{{ url_for('auth.change_details_step1') }}" class="nav__user-item">
+                                Change Details
+                            </a>
+
+                            <div class="nav__user-divider"></div>
+                            <a href="{{ url_for('auth.logout') }}" class="nav__user-item nav__user-item--danger">
+                                Log Out
+                            </a>
+                        </div>
+                    </div>
                 {% else %}
                     <a href="{{ url_for('auth.login') }}" class="nav__link">Log In</a>
                     <a href="{{ url_for('auth.register_step1') }}" class="btn btn--primary">Get Started</a>
@@ -67,6 +85,41 @@
     </footer>
 
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+
+    <script>
+        // ============================================================
+        // User menu dropdown
+        // ============================================================
+        const userMenuBtn = document.getElementById('userMenuBtn');
+        const userMenuDropdown = document.getElementById('userMenuDropdown');
+
+        if (userMenuBtn && userMenuDropdown) {
+            userMenuBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const isOpen = userMenuDropdown.classList.contains('is-open');
+                userMenuDropdown.classList.toggle('is-open', !isOpen);
+                userMenuBtn.setAttribute('aria-expanded', !isOpen);
+                userMenuDropdown.setAttribute('aria-hidden', isOpen);
+            });
+
+            // Close on click outside
+            document.addEventListener('click', () => {
+                userMenuDropdown.classList.remove('is-open');
+                userMenuBtn.setAttribute('aria-expanded', 'false');
+                userMenuDropdown.setAttribute('aria-hidden', 'true');
+            });
+
+            // Close on Escape
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    userMenuDropdown.classList.remove('is-open');
+                    userMenuBtn.setAttribute('aria-expanded', 'false');
+                    userMenuDropdown.setAttribute('aria-hidden', 'true');
+                }
+            });
+        }
+    </script>
+
     {% block extra_js %}{% endblock %}
 </body>
 </html>

@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% block title %}Change Details — Step 2 of 3{% endblock %}
+{% block body_class %}page--register{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/pages/register.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="register">
+    <div class="register__inner">
+
+        <!-- Progress bar -->
+        <div class="progress">
+            <div class="progress__steps">
+                {% set labels = ['Your Details', 'Confirm', 'Review'] %}
+                {% for i in range(1, 4) %}
+                <div class="progress__step {% if i < step %}is-complete{% elif i == step %}is-active{% endif %}">
+                    <div class="progress__dot">{% if i < step %}✓{% else %}{{ i }}{% endif %}</div>
+                    <div class="progress__label">{{ labels[i-1] }}</div>
+                </div>
+                {% endfor %}
+            </div>
+            <div class="progress__bar-track">
+                <div class="progress__bar-fill" style="width: {{ ((step - 1) / 2) * 100 }}%"></div>
+            </div>
+        </div>
+
+        <!-- Step card -->
+        <div class="step-card">
+            <div class="step-card__header">
+                <span class="step-card__icon">🔒</span>
+                <h1 class="step-card__title">Confirm your identity</h1>
+                <p class="step-card__subtitle">Enter your current password to continue.</p>
+            </div>
+
+            <form method="POST" action="{{ url_for('auth.change_details_step2') }}" novalidate autocomplete="off">
+
+                <div class="form-group">
+                    <label class="form-label" for="password">
+                        Current password <span class="form-label__required">*</span>
+                    </label>
+                    <div class="input-wrapper">
+                        <input
+                            class="form-input {% if errors.get('password') %}form-input--error{% endif %}"
+                            type="password"
+                            id="password"
+                            name="password"
+                            placeholder="Your current password"
+                            autocomplete="off"
+                            autofocus
+                        >
+                        <button type="button" class="input-toggle" data-target="password" aria-label="Show password">
+                            <span class="input-toggle__show">👁</span>
+                            <span class="input-toggle__hide" hidden>🙈</span>
+                        </button>
+                    </div>
+                    {% if errors.get('password') %}
+                    <p class="form-error">{{ errors.password }}</p>
+                    {% endif %}
+                </div>
+
+                <div class="form-actions">
+                    <a href="{{ url_for('auth.change_details_step1') }}" class="btn btn--ghost btn--back">← Back</a>
+                    <button type="submit" class="btn btn--primary">Continue →</button>
+                </div>
+
+            </form>
+        </div>
+
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.querySelectorAll('.input-toggle').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const target = document.getElementById(btn.dataset.target);
+            const isPassword = target.type === 'password';
+            target.type = isPassword ? 'text' : 'password';
+            btn.querySelector('.input-toggle__show').hidden = isPassword;
+            btn.querySelector('.input-toggle__hide').hidden = !isPassword;
+        });
+    });
+</script>
+{% endblock %}

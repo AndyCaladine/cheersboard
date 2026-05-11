@@ -1,0 +1,277 @@
+{% extends "base.html" %}
+{% block title %}Change Details — Step 1 of 3{% endblock %}
+{% block body_class %}page--register{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/pages/register.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="register">
+    <div class="register__inner">
+
+        <!-- Progress bar -->
+        <div class="progress">
+            <div class="progress__steps">
+                {% set labels = ['Your Details', 'Confirm', 'Review'] %}
+                {% for i in range(1, 4) %}
+                <div class="progress__step {% if i < step %}is-complete{% elif i == step %}is-active{% endif %}">
+                    <div class="progress__dot">{% if i < step %}✓{% else %}{{ i }}{% endif %}</div>
+                    <div class="progress__label">{{ labels[i-1] }}</div>
+                </div>
+                {% endfor %}
+            </div>
+            <div class="progress__bar-track">
+                <div class="progress__bar-fill" style="width: {{ ((step - 1) / 2) * 100 }}%"></div>
+            </div>
+        </div>
+
+        <!-- Step card -->
+        <div class="step-card">
+            <div class="step-card__header">
+                <span class="step-card__icon">✏️</span>
+                <h1 class="step-card__title">Update your details</h1>
+                <p class="step-card__subtitle">Make any changes below. Your current information is pre-filled.</p>
+            </div>
+
+            <form method="POST" action="{{ url_for('auth.change_details_step1') }}" novalidate>
+
+                <!-- Name -->
+                <div class="form-group form-group--half">
+                    <div>
+                        <label class="form-label" for="first_name">
+                            First name <span class="form-label__required">*</span>
+                        </label>
+                        <input
+                            class="form-input {% if errors.get('first_name') %}form-input--error{% endif %}"
+                            type="text"
+                            id="first_name"
+                            name="first_name"
+                            value="{{ form_data.get('first_name', '') }}"
+                            placeholder="Jane"
+                            autocomplete="given-name"
+                        >
+                        {% if errors.get('first_name') %}
+                        <p class="form-error">{{ errors.first_name }}</p>
+                        {% endif %}
+                    </div>
+                    <div>
+                        <label class="form-label" for="last_name">
+                            Last name <span class="form-label__required">*</span>
+                        </label>
+                        <input
+                            class="form-input {% if errors.get('last_name') %}form-input--error{% endif %}"
+                            type="text"
+                            id="last_name"
+                            name="last_name"
+                            value="{{ form_data.get('last_name', '') }}"
+                            placeholder="Smith"
+                            autocomplete="family-name"
+                        >
+                        {% if errors.get('last_name') %}
+                        <p class="form-error">{{ errors.last_name }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Email -->
+                <div class="form-group">
+                    <label class="form-label" for="email">
+                        Email address <span class="form-label__required">*</span>
+                    </label>
+                    <input
+                        class="form-input {% if errors.get('email') %}form-input--error{% endif %}"
+                        type="email"
+                        id="email"
+                        name="email"
+                        value="{{ form_data.get('email', '') }}"
+                        placeholder="jane@example.com"
+                        autocomplete="email"
+                    >
+                    {% if errors.get('email') %}
+                    <p class="form-error">{{ errors.email }}</p>
+                    {% endif %}
+                    <p class="form-hint">If you change your email address it will be used to log in from your next session.</p>
+                </div>
+
+                <!-- Mobile -->
+                <div class="form-group">
+                    <label class="form-label form-label--optional" for="mobile_number">
+                        Mobile number
+                    </label>
+                    <input
+                        class="form-input"
+                        type="tel"
+                        id="mobile_number"
+                        name="mobile_number"
+                        value="{{ form_data.get('mobile_number', '') }}"
+                        placeholder="+44 7700 900000"
+                        autocomplete="tel"
+                    >
+                </div>
+
+                <!-- Address -->
+                <div class="form-group">
+                    <label class="form-label" for="address_line_1">
+                        Address line 1 <span class="form-label__required">*</span>
+                    </label>
+                    <input
+                        class="form-input {% if errors.get('address_line_1') %}form-input--error{% endif %}"
+                        type="text"
+                        id="address_line_1"
+                        name="address_line_1"
+                        value="{{ form_data.get('address_line_1', '') }}"
+                        placeholder="1 Example Street"
+                        autocomplete="address-line1"
+                    >
+                    {% if errors.get('address_line_1') %}
+                    <p class="form-error">{{ errors.address_line_1 }}</p>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label form-label--optional" for="address_line_2">
+                        Address line 2
+                    </label>
+                    <input
+                        class="form-input"
+                        type="text"
+                        id="address_line_2"
+                        name="address_line_2"
+                        value="{{ form_data.get('address_line_2', '') }}"
+                        placeholder="Apartment, suite, etc."
+                        autocomplete="address-line2"
+                    >
+                </div>
+
+                <div class="form-group form-group--half">
+                    <div>
+                        <label class="form-label" for="city">
+                            City / town <span class="form-label__required">*</span>
+                        </label>
+                        <input
+                            class="form-input {% if errors.get('city') %}form-input--error{% endif %}"
+                            type="text"
+                            id="city"
+                            name="city"
+                            value="{{ form_data.get('city', '') }}"
+                            placeholder="Birmingham"
+                            autocomplete="address-level2"
+                        >
+                        {% if errors.get('city') %}
+                        <p class="form-error">{{ errors.city }}</p>
+                        {% endif %}
+                    </div>
+                    <div>
+                        <label class="form-label form-label--optional" for="county">
+                            County
+                        </label>
+                        <input
+                            class="form-input"
+                            type="text"
+                            id="county"
+                            name="county"
+                            value="{{ form_data.get('county', '') }}"
+                            placeholder="West Midlands"
+                            autocomplete="address-level1"
+                        >
+                    </div>
+                </div>
+
+                <div class="form-group form-group--half">
+                    <div>
+                        <label class="form-label" for="postcode">
+                            Postcode <span class="form-label__required">*</span>
+                        </label>
+                        <input
+                            class="form-input {% if errors.get('postcode') %}form-input--error{% endif %}"
+                            type="text"
+                            id="postcode"
+                            name="postcode"
+                            value="{{ form_data.get('postcode', '') }}"
+                            placeholder="B1 1AA"
+                            autocomplete="postal-code"
+                        >
+                        {% if errors.get('postcode') %}
+                        <p class="form-error">{{ errors.postcode }}</p>
+                        {% endif %}
+                    </div>
+                    <div>
+                        <label class="form-label" for="country">
+                            Country <span class="form-label__required">*</span>
+                        </label>
+                        <select
+                            class="form-select {% if errors.get('country') %}form-input--error{% endif %}"
+                            id="country"
+                            name="country"
+                            autocomplete="country-name"
+                        >
+                            <option value="" disabled {% if not form_data.get('country') %}selected{% endif %}>Select...</option>
+                            {% set countries = [
+                                'United Kingdom', 'United States', 'Australia', 'Canada',
+                                'Ireland', 'New Zealand', 'South Africa', 'Other'
+                            ] %}
+                            {% for c in countries %}
+                            <option value="{{ c }}" {% if form_data.get('country') == c %}selected{% endif %}>{{ c }}</option>
+                            {% endfor %}
+                        </select>
+                        {% if errors.get('country') %}
+                        <p class="form-error">{{ errors.country }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Communication preference -->
+                <div class="form-group">
+                    <label class="form-label" for="communication_preference">
+                        Communication preference <span class="form-label__required">*</span>
+                    </label>
+                    <select
+                        class="form-select {% if errors.get('communication_preference') %}form-input--error{% endif %}"
+                        id="communication_preference"
+                        name="communication_preference"
+                    >
+                        {% set prefs = [('email', 'Email'), ('sms', 'SMS'), ('both', 'Email and SMS'), ('none', 'None')] %}
+                        {% for val, label in prefs %}
+                        <option value="{{ val }}" {% if form_data.get('communication_preference') == val %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                    {% if errors.get('communication_preference') %}
+                    <p class="form-error">{{ errors.communication_preference }}</p>
+                    {% endif %}
+                </div>
+
+                <!-- Marketing and notifications -->
+                <div class="form-group">
+                    <div class="form-checkbox">
+                        <input
+                            type="checkbox"
+                            id="marketing_opt_in"
+                            name="marketing_opt_in"
+                            value="1"
+                            {% if form_data.get('marketing_opt_in') == 1 or form_data.get('marketing_opt_in') == '1' %}checked{% endif %}
+                        >
+                        <label for="marketing_opt_in">Send me occasional news and offers from CheersBoard</label>
+                    </div>
+                    <div class="form-checkbox">
+                        <input
+                            type="checkbox"
+                            id="notifications_opt_in"
+                            name="notifications_opt_in"
+                            value="1"
+                            {% if form_data.get('notifications_opt_in') == 1 or form_data.get('notifications_opt_in') == '1' %}checked{% endif %}
+                        >
+                        <label for="notifications_opt_in">Send me notifications about my boards and messages</label>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <a href="{{ url_for('boards.dashboard') }}" class="btn btn--ghost btn--back">Cancel</a>
+                    <button type="submit" class="btn btn--primary">Continue →</button>
+                </div>
+
+            </form>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

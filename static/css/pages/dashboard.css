@@ -20,15 +20,12 @@
    11. Expand buttons & preview panels
    12. Layout demos
    13. Responsive
+   14. Light mode overrides
    ============================================================ */
 
 
 /* ============================================================
    1. Theme variables
-   ============================================================
-   --dash-accent drives name colour, prices, and highlights.
-   Dark mode uses yellow. Light mode uses teal for contrast
-   against the cream background.
    ============================================================ */
 
 .theme--dark {
@@ -41,9 +38,9 @@
     --dash-input-bg:     rgba(255,255,255,0.07);
     --dash-hover:        rgba(255,255,255,0.1);
     --dash-table-head:   rgba(255,255,255,0.06);
-    --dash-table-stripe: rgba(255,255,255,0.02);
     --dash-shadow:       0 4px 20px rgba(0,0,0,0.3);
     --dash-accent:       #F5C518;
+    --dash-table-bg:     #1a2035;
 }
 
 .theme--light {
@@ -56,9 +53,9 @@
     --dash-input-bg:     #F9FAFB;
     --dash-hover:        #F3F4F6;
     --dash-table-head:   #F9FAFB;
-    --dash-table-stripe: #FAFAFA;
     --dash-shadow:       0 4px 20px rgba(0,0,0,0.08);
     --dash-accent:       #2ABFBF;
+    --dash-table-bg:     #FFFFFF;
 }
 
 
@@ -423,9 +420,11 @@
    ============================================================ */
 
 .pricing-table-wrapper {
-    overflow-x: auto;
-    border-radius: var(--radius-lg);
+    background: var(--dash-table-bg);
     border: 1px solid var(--dash-border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    overflow-x: auto;
     -webkit-overflow-scrolling: touch;
 }
 
@@ -433,6 +432,7 @@
     width: 100%;
     border-collapse: collapse;
     min-width: 600px;
+    color: var(--dash-text);
 }
 
 .pricing-table__feature-col {
@@ -449,7 +449,7 @@
 }
 
 .pricing-table thead th {
-    padding: 1.25rem 1rem;
+    padding: 1.75rem 1rem 1.25rem;
     border-bottom: 2px solid var(--dash-border);
 }
 
@@ -462,12 +462,14 @@
 }
 
 .tier-header--featured {
-    padding-top: 0.5rem;
+    padding-top: 0.75rem;
 }
 
 .tier-header__badge {
     position: absolute;
-    top: -1.25rem;
+    top: -1.5rem;
+    left: 50%;
+    transform: translateX(-50%);
     background: var(--color-yellow);
     color: var(--color-navy);
     font-family: var(--font-display);
@@ -496,14 +498,12 @@
     background: rgba(245,197,24,0.04);
 }
 
+/* Body rows — no striping to avoid nth-child conflicts with hidden preview rows */
 .pricing-table__row td {
     padding: 0.875rem 1rem;
     border-bottom: 1px solid var(--dash-border);
     vertical-align: middle;
-}
-
-.pricing-table__row:nth-child(even) {
-    background: var(--dash-table-stripe);
+    background: transparent;
 }
 
 .pricing-table__row:last-child td {
@@ -527,9 +527,10 @@
     color: var(--dash-text-muted);
 }
 
+/* CTA row */
 .pricing-table__cta-row td {
     padding: 1.25rem 1rem;
-    background: var(--dash-table-head);
+    background: var(--dash-table-head) !important;
     border-bottom: none;
 }
 
@@ -626,7 +627,7 @@
 
 .preview-panel {
     padding: 1.25rem;
-    background: var(--dash-table-stripe);
+    background: var(--dash-table-head);
     animation: card-rise 0.3s ease both;
 }
 
@@ -783,10 +784,9 @@
     }
 }
 
+
 /* ============================================================
-   Light mode button overrides
-   btn--primary uses yellow globally but on the light cream
-   background it needs teal for readability
+   14. Light mode overrides
    ============================================================ */
 
 .theme--light .btn--primary {
@@ -800,9 +800,6 @@
     background: #229f9f;
     border-color: #229f9f;
 }
-
-/* Popular badge in light mode — yellow on white table header
-   is still readable but swap to navy for better contrast */
 
 .theme--light .tier-header__badge {
     background: var(--color-navy);

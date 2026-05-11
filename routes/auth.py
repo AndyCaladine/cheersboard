@@ -4,7 +4,13 @@ from flask import Blueprint, render_template, redirect, url_for, session, flash,
 from werkzeug.security import generate_password_hash, check_password_hash
 from utils.db import get_db_connection
 from utils.security import hash_answer
-from utils.email import send_password_reset_email, send_welcome_email
+from utils.email import (
+    send_password_reset_email,
+    send_welcome_email,
+    send_password_changed_email,
+    send_details_changed_email,
+    send_email_changed_warning,
+)
 from config import Config
 
 auth_bp = Blueprint("auth", __name__)
@@ -19,15 +25,13 @@ SECURITY_QUESTIONS = [
     "What was the name of your childhood best friend?",
 ]
 
+COMMUNICATION_PREFERENCES = ("email", "sms", "both", "none")
+
 # ============================================================
 # Helpers
 # ============================================================
 
-def assemble_dob (day, month, year):
-    """
-    Take three sting parts from the date of birth dropdowns and returns a single string
-    in YYYY-MM-DD format, or None if any part os missing or invalid.
-    """
+def assemble_dob(day, month, year):
     if not day or not month or not year:
         return None
     try:
@@ -35,32 +39,22 @@ def assemble_dob (day, month, year):
         return dob.strftime("%Y-%m-%d")
     except (ValueError, TypeError):
         return None
-    
+
 def validate_step1(form):
-    """
-    Validates step 1 fields. Returns an error dict keyed by field name.
-    Am e,pty dict means the validation has passed
-    """
-
     errors = {}
-
     first_name = form.get("first_name", "").strip()
     last_name = form.get("last_name", "").strip()
     email = form.get("email", "").strip().lower()
     dob_day = form.get("dob_day", "").strip()
     dob_month = form.get("dob_month", "").strip()
     dob_year = form.get("dob_year", "").strip()
-    mobile_number = form.get("mobile_number", "").strip()
 
     if not first_name:
         errors["first_name"] = "Please enter your first name"
-
     if not last_name:
         errors["last_name"] = "Please enter your surname. If you do not have a surname enter your first name again."
-
     if not email:
         errors["email"] = "Please enter your email address."
-
     if not dob_day or not dob_month or not dob_year:
         errors["date_of_birth"] = "Please enter your date of birth in all fields."
     else:
@@ -72,41 +66,33 @@ def validate_step1(form):
             age = (datetime.today() - dob).days // 365
             if age < 13:
                 errors["date_of_birth"] = "You must be at least 13 years old to register."
-    
     return errors
 
 def validate_step2(form):
     errors = {}
- 
     if not form.get("address_line_1", "").strip():
         errors["address_line_1"] = "Please enter the first line of your address."
- 
     if not form.get("city", "").strip():
         errors["city"] = "Please enter your city or town."
- 
     if not form.get("postcode", "").strip():
         errors["postcode"] = "Please enter your postcode."
- 
     if not form.get("country", "").strip():
         errors["country"] = "Please select your country."
- 
     return errors
 
 def validate_step3(form):
     errors = {}
-
     password = form.get("password", "")
     confirm_password = form.get("confirm_password", "")
     security_question = form.get("security_question", "").strip()
     security_answer = form.get("security_answer", "").strip()
 
-    #Password rules
     if not password:
         errors["password"] = "Please enter a password"
     else:
         password_errors = []
         if len(password) < 8:
-            password_errors.append("at least 8 charactrers")
+            password_errors.append("at least 8 characters")
         if not any(c.islower() for c in password):
             password_errors.append("one lowercase letter")
         if not any(c.isupper() for c in password):
@@ -115,7 +101,6 @@ def validate_step3(form):
             password_errors.append("one number")
         if not any(c.isalnum() for c in password):
             password_errors.append("one special character")
-
         if password_errors:
             errors["password"] = "Your password must contain " + ", ".join(password_errors) + "."
 
@@ -126,7 +111,7 @@ def validate_step3(form):
             errors["confirm_password"] = "Passwords do not match. Please try again."
 
     if not security_question:
-        errors["security_question"] = "Please select a secuirty question."
+        errors["security_question"] = "Please select a security question."
     elif security_question not in SECURITY_QUESTIONS:
         errors["security_question"] = "Please select a valid question from the list."
 
@@ -134,38 +119,80 @@ def validate_step3(form):
         errors["security_answer"] = "Please enter an answer to your security question."
     elif security_answer == password:
         errors["security_answer"] = "Your security answer cannot be the same as your password."
- 
     return errors
 
 def validate_step4(form):
     errors = {}
- 
     communication_preference = form.get("communication_preference", "").strip()
-    if communication_preference not in ("email", "sms", "both", "none"):
+    if communication_preference not in COMMUNICATION_PREFERENCES:
         errors["communication_preference"] = "Please select a communication preference."
- 
     if not form.get("terms_agreed"):
         errors["terms_agreed"] = "You must agree to the Terms & Conditions to continue."
- 
     if not form.get("gdpr_agreed"):
         errors["gdpr_agreed"] = "You must confirm you have read the Privacy Policy to continue."
- 
+    return errors
+
+def validate_password(password, confirm_password):
+    errors = {}
+    if not password:
+        errors["password"] = "Please enter a new password."
+    else:
+        password_errors = []
+        if len(password) < 8:
+            password_errors.append("at least 8 characters")
+        if not any(c.islower() for c in password):
+            password_errors.append("one lowercase letter")
+        if not any(c.isupper() for c in password):
+            password_errors.append("one uppercase letter")
+        if not any(c.isdigit() for c in password):
+            password_errors.append("one number")
+        if not any(c.isalnum() for c in password):
+            password_errors.append("one special character")
+        if password_errors:
+            errors["password"] = "Your password must contain " + ", ".join(password_errors) + "."
+
+    if not errors.get("password"):
+        if not confirm_password:
+            errors["confirm_password"] = "Please confirm your new password."
+        elif password != confirm_password:
+            errors["confirm_password"] = "Passwords do not match. Please try again."
+    return errors
+
+def validate_change_details(form):
+    """Validates step 1 of the change details flow."""
+    errors = {}
+    if not form.get("first_name", "").strip():
+        errors["first_name"] = "Please enter your first name."
+    if not form.get("last_name", "").strip():
+        errors["last_name"] = "Please enter your surname."
+    email = form.get("email", "").strip().lower()
+    if not email:
+        errors["email"] = "Please enter your email address."
+    if not form.get("address_line_1", "").strip():
+        errors["address_line_1"] = "Please enter the first line of your address."
+    if not form.get("city", "").strip():
+        errors["city"] = "Please enter your city or town."
+    if not form.get("postcode", "").strip():
+        errors["postcode"] = "Please enter your postcode."
+    if not form.get("country", "").strip():
+        errors["country"] = "Please select your country."
+    if form.get("communication_preference", "").strip() not in COMMUNICATION_PREFERENCES:
+        errors["communication_preference"] = "Please select a communication preference."
     return errors
 
 
 # ============================================================
 # Registration — Step 1: About You
 # ============================================================
- 
+
 @auth_bp.route("/register", methods=["GET", "POST"])
 @auth_bp.route("/register/step/1", methods=["GET", "POST"])
 def register_step1():
     if "user_id" in session:
         return redirect(url_for("boards.dashboard"))
- 
+
     if request.method == "POST":
         form = request.form
- 
         first_name = form.get("first_name", "").strip()
         last_name = form.get("last_name", "").strip()
         email = form.get("email", "").strip().lower()
@@ -173,54 +200,35 @@ def register_step1():
         dob_month = form.get("dob_month", "").strip()
         dob_year = form.get("dob_year", "").strip()
         mobile_number = form.get("mobile_number", "").strip()
- 
+
         errors = validate_step1(form)
- 
-        # Email uniqueness check — only if no other errors so far
+
         if not errors.get("email") and email:
             conn = get_db_connection()
             try:
                 existing = conn.execute(
-                    "SELECT id FROM users WHERE email = ?",
-                    (email,)
+                    "SELECT id FROM users WHERE email = ?", (email,)
                 ).fetchone()
                 if existing:
                     errors["email"] = "An account already exists for that email address."
             finally:
                 conn.close()
- 
+
         if errors:
-            return render_template(
-                "register_step1.html",
-                form_data=form.to_dict(),
-                errors=errors,
-                step=1
-            )
- 
+            return render_template("register_step1.html", form_data=form.to_dict(), errors=errors, step=1)
+
         dob_str = assemble_dob(dob_day, dob_month, dob_year)
- 
         session["reg_step1"] = {
-            "first_name": first_name,
-            "last_name": last_name,
-            "email": email,
-            "date_of_birth": dob_str,
-            "dob_day": dob_day,
-            "dob_month": dob_month,
-            "dob_year": dob_year,
-            "mobile_number": mobile_number,
+            "first_name": first_name, "last_name": last_name, "email": email,
+            "date_of_birth": dob_str, "dob_day": dob_day, "dob_month": dob_month,
+            "dob_year": dob_year, "mobile_number": mobile_number,
         }
- 
         return redirect(url_for("auth.register_step2"))
- 
+
     form_data = session.get("reg_step1", {})
-    return render_template(
-        "register_step1.html",
-        form_data=form_data,
-        errors={},
-        step=1
-    )
- 
- 
+    return render_template("register_step1.html", form_data=form_data, errors={}, step=1)
+
+
 # ============================================================
 # Registration — Step 2: Your Address
 # ============================================================
@@ -229,7 +237,6 @@ def register_step1():
 def register_step2():
     if "user_id" in session:
         return redirect(url_for("boards.dashboard"))
-
     if "reg_step1" not in session:
         flash("Your session has expired. Please start again.", "error")
         return redirect(url_for("auth.register_step1"))
@@ -237,14 +244,8 @@ def register_step2():
     if request.method == "POST":
         form = request.form
         errors = validate_step2(form)
-
         if errors:
-            return render_template(
-                "register_step2.html",
-                form_data=form.to_dict(),
-                errors=errors,
-                step=2
-            )
+            return render_template("register_step2.html", form_data=form.to_dict(), errors=errors, step=2)
 
         session["reg_step2"] = {
             "address_line_1": form.get("address_line_1", "").strip(),
@@ -254,16 +255,10 @@ def register_step2():
             "postcode": form.get("postcode", "").strip(),
             "country": form.get("country", "").strip(),
         }
-
         return redirect(url_for("auth.register_step3"))
 
     form_data = session.get("reg_step2", {})
-    return render_template(
-        "register_step2.html",
-        form_data=form_data,
-        errors={},
-        step=2
-    )
+    return render_template("register_step2.html", form_data=form_data, errors={}, step=2)
 
 
 # ============================================================
@@ -274,7 +269,6 @@ def register_step2():
 def register_step3():
     if "user_id" in session:
         return redirect(url_for("boards.dashboard"))
-
     if "reg_step2" not in session:
         flash("Your session has expired. Please start again.", "error")
         return redirect(url_for("auth.register_step1"))
@@ -282,59 +276,43 @@ def register_step3():
     if request.method == "POST":
         form = request.form
         errors = validate_step3(form)
- 
         if errors:
             return render_template(
-                "register_step3.html",
-                form_data=form.to_dict(),
-                errors=errors,
-                security_questions=SECURITY_QUESTIONS,
-                step=3
+                "register_step3.html", form_data=form.to_dict(), errors=errors,
+                security_questions=SECURITY_QUESTIONS, step=3
             )
- 
         session["reg_step3"] = {
             "password": form.get("password", ""),
             "security_question": form.get("security_question", "").strip(),
             "security_answer": form.get("security_answer", "").strip(),
         }
- 
         return redirect(url_for("auth.register_step4"))
- 
+
     form_data = session.get("reg_step3", {})
     return render_template(
-        "register_step3.html",
-        form_data=form_data,
-        errors={},
-        security_questions=SECURITY_QUESTIONS,
-        step=3
+        "register_step3.html", form_data=form_data, errors={},
+        security_questions=SECURITY_QUESTIONS, step=3
     )
- 
- 
+
+
 # ============================================================
 # Registration — Step 4: Preferences & Agreements
 # ============================================================
- 
+
 @auth_bp.route("/register/step/4", methods=["GET", "POST"])
 def register_step4():
     if "user_id" in session:
         return redirect(url_for("boards.dashboard"))
- 
     if "reg_step3" not in session:
         flash("Your session has expired. Please start again.", "error")
         return redirect(url_for("auth.register_step1"))
- 
+
     if request.method == "POST":
         form = request.form
         errors = validate_step4(form)
- 
         if errors:
-            return render_template(
-                "register_step4.html",
-                form_data=form.to_dict(),
-                errors=errors,
-                step=4
-            )
- 
+            return render_template("register_step4.html", form_data=form.to_dict(), errors=errors, step=4)
+
         session["reg_step4"] = {
             "communication_preference": form.get("communication_preference", "email").strip(),
             "marketing_opt_in": 1 if form.get("marketing_opt_in") else 0,
@@ -342,54 +320,45 @@ def register_step4():
             "terms_agreed": 1,
             "gdpr_agreed": 1,
         }
- 
         return redirect(url_for("auth.register_review"))
- 
+
     form_data = session.get("reg_step4", {})
-    return render_template(
-        "register_step4.html",
-        form_data=form_data,
-        errors={},
-        step=4
-    )
- 
- 
+    return render_template("register_step4.html", form_data=form_data, errors={}, step=4)
+
+
 # ============================================================
 # Registration — Step 5: Review & Submit
 # ============================================================
- 
+
 @auth_bp.route("/register/review", methods=["GET", "POST"])
 def register_review():
     if "user_id" in session:
         return redirect(url_for("boards.dashboard"))
- 
+
     for key in ("reg_step1", "reg_step2", "reg_step3", "reg_step4"):
         if key not in session:
             flash("Your session has expired. Please start again.", "error")
             return redirect(url_for("auth.register_step1"))
- 
+
     if request.method == "POST":
         voucher_code = request.form.get("voucher_code", "").strip().upper()
- 
         s1 = session["reg_step1"]
         s2 = session["reg_step2"]
         s3 = session["reg_step3"]
         s4 = session["reg_step4"]
         now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
- 
+
         conn = get_db_connection()
         try:
             existing = conn.execute(
-                "SELECT id FROM users WHERE email = ?",
-                (s1["email"],)
+                "SELECT id FROM users WHERE email = ?", (s1["email"],)
             ).fetchone()
- 
             if existing:
                 flash("An account already exists for that email address. Please log in.", "error")
                 for key in ("reg_step1", "reg_step2", "reg_step3", "reg_step4"):
                     session.pop(key, None)
                 return redirect(url_for("auth.login"))
- 
+
             conn.execute(
                 """
                 INSERT INTO users (
@@ -417,64 +386,58 @@ def register_review():
                 )
             )
             conn.commit()
- 
+
             user = conn.execute(
                 "SELECT id, first_name, email, is_admin FROM users WHERE email = ?",
                 (s1["email"],)
             ).fetchone()
- 
+
             for key in ("reg_step1", "reg_step2", "reg_step3", "reg_step4"):
                 session.pop(key, None)
- 
+
             session["user_id"] = user["id"]
             session["email"] = s1["email"]
             session["user_name"] = user["first_name"]
             session["is_admin"] = user["is_admin"]
             send_welcome_email(user)
- 
+
             if voucher_code:
                 session["pending_voucher"] = voucher_code
- 
+
             flash(f"Welcome to CheersBoard, {user['first_name']}! Your account has been created.", "success")
             return redirect(url_for("boards.dashboard"))
- 
+
         finally:
             conn.close()
- 
+
     return render_template(
         "register_review.html",
-        s1=session["reg_step1"],
-        s2=session["reg_step2"],
-        s3=session["reg_step3"],
-        s4=session["reg_step4"],
+        s1=session["reg_step1"], s2=session["reg_step2"],
+        s3=session["reg_step3"], s4=session["reg_step4"],
         step=5
     )
- 
- 
+
+
 # ============================================================
 # Login
 # ============================================================
- 
+
 @auth_bp.route("/login", methods=["GET", "POST"])
 def login():
     if "user_id" in session:
         return redirect(url_for("boards.dashboard"))
- 
+
     if request.method == "POST":
         email = request.form.get("email", "").strip().lower()
         password = request.form.get("password", "")
- 
+
         conn = get_db_connection()
         user = conn.execute(
-            """
-            SELECT id, first_name, email, password_hash, is_admin
-            FROM users
-            WHERE email = ? AND is_active = 1
-            """,
+            "SELECT id, first_name, email, password_hash, is_admin FROM users WHERE email = ? AND is_active = 1",
             (email,)
         ).fetchone()
         conn.close()
- 
+
         if user and check_password_hash(user["password_hash"], password):
             session["user_id"] = user["id"]
             session["email"] = user["email"]
@@ -482,16 +445,16 @@ def login():
             session["is_admin"] = user["is_admin"]
             flash(f"Welcome back, {user['first_name']}!", "success")
             return redirect(url_for("boards.dashboard"))
- 
+
         flash("Incorrect email or password. Please check your details and try again.", "error")
- 
+
     return render_template("login.html")
- 
- 
+
+
 # ============================================================
 # Logout
 # ============================================================
- 
+
 @auth_bp.route("/logout")
 def logout():
     session.clear()
@@ -512,10 +475,9 @@ def forgot_password():
 
     if request.method == "POST":
         email = request.form.get("email", "").strip().lower()
-
         if not email:
             errors["email"] = "Please enter your email address."
-        
+
         if not errors:
             conn = get_db_connection()
             try:
@@ -523,28 +485,19 @@ def forgot_password():
                     "SELECT id, first_name, email FROM users WHERE email = ? AND is_active = 1",
                     (email,)
                 ).fetchone()
-
                 if user:
                     token = secrets.token_urlsafe(32)
                     expires_at = (datetime.now() + timedelta(hours=1)).strftime("%Y-%m-%d %H:%M:%S")
-
                     conn.execute(
-                        """
-                        INSERT INTO password_resets (user_id, token, expires_at)
-                        VALUES (?, ?, ?)
-                        """,
+                        "INSERT INTO password_resets (user_id, token, expires_at) VALUES (?, ?, ?)",
                         (user["id"], token, expires_at)
                     )
                     conn.commit()
-
                     reset_url = url_for("auth.reset_password", token=token, _external=True)
                     send_password_reset_email(user, reset_url)
-
             finally:
                 conn.close()
 
-        # Always show the same message whether the email exists or not
-        # to avoid leaking account information
         flash(
             "If an account exists for that email address, we've sent a password reset link. "
             "Please check your inbox — it may take a couple of minutes to arrive.",
@@ -568,8 +521,7 @@ def reset_password(token):
     try:
         reset = conn.execute(
             """
-            SELECT pr.id, pr.user_id, pr.expires_at, pr.used_at,
-                   u.first_name, u.email
+            SELECT pr.id, pr.user_id, pr.expires_at, pr.used_at, u.first_name, u.email
             FROM password_resets pr
             JOIN users u ON u.id = pr.user_id
             WHERE pr.token = ? AND u.is_active = 1
@@ -579,17 +531,13 @@ def reset_password(token):
     finally:
         conn.close()
 
-    # Token not found
     if not reset:
         flash("This password reset link is invalid. Please request a new one.", "error")
         return redirect(url_for("auth.forgot_password"))
-
-    # Token already used
     if reset["used_at"]:
         flash("This password reset link has already been used. Please request a new one.", "error")
         return redirect(url_for("auth.forgot_password"))
 
-    # Token expired
     expires_at = datetime.strptime(reset["expires_at"], "%Y-%m-%d %H:%M:%S")
     if datetime.now() > expires_at:
         flash("This password reset link has expired. Please request a new one.", "error")
@@ -600,41 +548,14 @@ def reset_password(token):
     if request.method == "POST":
         password = request.form.get("password", "")
         confirm_password = request.form.get("confirm_password", "")
-
-        if not password:
-            errors["password"] = "Please enter a new password."
-        else:
-            password_errors = []
-            if len(password) < 8:
-                password_errors.append("at least 8 characters")
-            if not any(c.islower() for c in password):
-                password_errors.append("one lowercase letter")
-            if not any(c.isupper() for c in password):
-                password_errors.append("one uppercase letter")
-            if not any(c.isdigit() for c in password):
-                password_errors.append("one number")
-            if not any(c.isalnum() for c in password):
-                password_errors.append("one special character")
-
-            if password_errors:
-                errors["password"] = "Your password must contain " + ", ".join(password_errors) + "."
-
-        if not errors.get("password"):
-            if not confirm_password:
-                errors["confirm_password"] = "Please confirm your new password."
-            elif password != confirm_password:
-                errors["confirm_password"] = "Passwords do not match. Please try again."
+        errors = validate_password(password, confirm_password)
 
         if not errors:
             now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             conn = get_db_connection()
             try:
                 conn.execute(
-                    """
-                    UPDATE users
-                    SET password_hash = ?, updated_at = ?, updated_by_role = 'customer'
-                    WHERE id = ?
-                    """,
+                    "UPDATE users SET password_hash = ?, updated_at = ?, updated_by_role = 'customer' WHERE id = ?",
                     (generate_password_hash(password), now, reset["user_id"])
                 )
                 conn.execute(
@@ -648,9 +569,305 @@ def reset_password(token):
             flash("Your password has been reset. You can now log in with your new password.", "success")
             return redirect(url_for("auth.login"))
 
+    return render_template("reset_password.html", token=token, errors=errors, first_name=reset["first_name"])
+
+
+# ============================================================
+# Change Password
+# ============================================================
+
+@auth_bp.route("/account/change-password", methods=["GET", "POST"])
+def change_password():
+    if "user_id" not in session:
+        flash("Please log in to access that page.", "error")
+        return redirect(url_for("auth.login"))
+
+    errors = {}
+
+    if request.method == "POST":
+        current_password = request.form.get("current_password", "")
+        new_password = request.form.get("new_password", "")
+        confirm_password = request.form.get("confirm_password", "")
+
+        conn = get_db_connection()
+        try:
+            user = conn.execute(
+                "SELECT id, first_name, email, password_hash FROM users WHERE id = ? AND is_active = 1",
+                (session["user_id"],)
+            ).fetchone()
+
+            if not current_password:
+                errors["current_password"] = "Please enter your current password."
+            elif not check_password_hash(user["password_hash"], current_password):
+                errors["current_password"] = "Your current password is incorrect."
+
+            if not errors.get("current_password"):
+                errors.update(validate_password(new_password, confirm_password))
+                if not errors and check_password_hash(user["password_hash"], new_password):
+                    errors["new_password"] = "Your new password must be different from your current password."
+
+            if not errors:
+                now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                conn.execute(
+                    "UPDATE users SET password_hash = ?, updated_at = ?, updated_by_role = 'customer' WHERE id = ?",
+                    (generate_password_hash(new_password), now, session["user_id"])
+                )
+                conn.commit()
+                send_password_changed_email(user)
+                flash("Your password has been changed successfully.", "success")
+                return redirect(url_for("boards.dashboard"))
+
+        finally:
+            conn.close()
+
+    return render_template("change_password.html", errors=errors)
+
+
+# ============================================================
+# Change Details — Step 1: Edit your information
+# ============================================================
+
+@auth_bp.route("/account/change-details", methods=["GET", "POST"])
+def change_details_step1():
+    if "user_id" not in session:
+        flash("Please log in to access that page.", "error")
+        return redirect(url_for("auth.login"))
+
+    conn = get_db_connection()
+    try:
+        user = conn.execute(
+            """
+            SELECT first_name, last_name, email, mobile_number,
+                   address_line_1, address_line_2, city, county, postcode, country,
+                   communication_preference, marketing_opt_in, notifications_opt_in
+            FROM users WHERE id = ? AND is_active = 1
+            """,
+            (session["user_id"],)
+        ).fetchone()
+    finally:
+        conn.close()
+
+    if request.method == "POST":
+        form = request.form
+        errors = validate_change_details(form)
+
+        # Email uniqueness check — only if changed and no other email errors
+        new_email = form.get("email", "").strip().lower()
+        if not errors.get("email") and new_email != user["email"]:
+            conn = get_db_connection()
+            try:
+                existing = conn.execute(
+                    "SELECT id FROM users WHERE email = ? AND id != ?",
+                    (new_email, session["user_id"])
+                ).fetchone()
+                if existing:
+                    errors["email"] = "An account already exists for that email address."
+            finally:
+                conn.close()
+
+        if errors:
+            return render_template(
+                "change_details_step1.html",
+                form_data=form.to_dict(),
+                errors=errors,
+                user=user,
+                step=1
+            )
+
+        # Store proposed changes in session
+        session["change_details"] = {
+            "first_name": form.get("first_name", "").strip(),
+            "last_name": form.get("last_name", "").strip(),
+            "email": new_email,
+            "mobile_number": form.get("mobile_number", "").strip() or None,
+            "address_line_1": form.get("address_line_1", "").strip(),
+            "address_line_2": form.get("address_line_2", "").strip() or None,
+            "city": form.get("city", "").strip(),
+            "county": form.get("county", "").strip() or None,
+            "postcode": form.get("postcode", "").strip(),
+            "country": form.get("country", "").strip(),
+            "communication_preference": form.get("communication_preference", "email").strip(),
+            "marketing_opt_in": 1 if form.get("marketing_opt_in") else 0,
+            "notifications_opt_in": 1 if form.get("notifications_opt_in") else 0,
+            "old_email": user["email"],
+        }
+
+        return redirect(url_for("auth.change_details_step2"))
+
+    # Pre-fill with current values on GET
+    form_data = dict(user)
     return render_template(
-        "reset_password.html",
-        token=token,
-        errors=errors,
-        first_name=reset["first_name"]
+        "change_details_step1.html",
+        form_data=form_data,
+        errors={},
+        user=user,
+        step=1
+    )
+
+
+# ============================================================
+# Change Details — Step 2: Confirm password
+# ============================================================
+
+@auth_bp.route("/account/change-details/confirm", methods=["GET", "POST"])
+def change_details_step2():
+    if "user_id" not in session:
+        flash("Please log in to access that page.", "error")
+        return redirect(url_for("auth.login"))
+
+    if "change_details" not in session:
+        flash("Your session has expired. Please start again.", "error")
+        return redirect(url_for("auth.change_details_step1"))
+
+    errors = {}
+
+    if request.method == "POST":
+        password = request.form.get("password", "")
+
+        conn = get_db_connection()
+        try:
+            user = conn.execute(
+                "SELECT password_hash FROM users WHERE id = ? AND is_active = 1",
+                (session["user_id"],)
+            ).fetchone()
+        finally:
+            conn.close()
+
+        if not password:
+            errors["password"] = "Please enter your current password."
+        elif not check_password_hash(user["password_hash"], password):
+            errors["password"] = "Your password is incorrect. Please try again."
+
+        if not errors:
+            return redirect(url_for("auth.change_details_step3"))
+
+    return render_template("change_details_step2.html", errors=errors, step=2)
+
+
+# ============================================================
+# Change Details — Step 3: Review and confirm
+# ============================================================
+
+@auth_bp.route("/account/change-details/review", methods=["GET", "POST"])
+def change_details_step3():
+    if "user_id" not in session:
+        flash("Please log in to access that page.", "error")
+        return redirect(url_for("auth.login"))
+
+    if "change_details" not in session:
+        flash("Your session has expired. Please start again.", "error")
+        return redirect(url_for("auth.change_details_step1"))
+
+    proposed = session["change_details"]
+
+    # Fetch current values for comparison
+    conn = get_db_connection()
+    try:
+        current = conn.execute(
+            """
+            SELECT first_name, last_name, email, mobile_number,
+                   address_line_1, address_line_2, city, county, postcode, country,
+                   communication_preference, marketing_opt_in, notifications_opt_in
+            FROM users WHERE id = ? AND is_active = 1
+            """,
+            (session["user_id"],)
+        ).fetchone()
+    finally:
+        conn.close()
+
+    # Build a list of changes for the summary display
+    field_labels = {
+        "first_name": "First name",
+        "last_name": "Last name",
+        "email": "Email address",
+        "mobile_number": "Mobile number",
+        "address_line_1": "Address line 1",
+        "address_line_2": "Address line 2",
+        "city": "City / town",
+        "county": "County",
+        "postcode": "Postcode",
+        "country": "Country",
+        "communication_preference": "Communication preference",
+        "marketing_opt_in": "Marketing emails",
+        "notifications_opt_in": "Notification emails",
+    }
+
+    changes = []
+    for key, label in field_labels.items():
+        old_val = current[key]
+        new_val = proposed.get(key)
+        # Normalise for comparison
+        old_str = str(old_val).strip() if old_val is not None else ""
+        new_str = str(new_val).strip() if new_val is not None else ""
+        if old_str != new_str:
+            # Format booleans nicely
+            if key in ("marketing_opt_in", "notifications_opt_in"):
+                old_display = "Yes" if old_val else "No"
+                new_display = "Yes" if new_val else "No"
+            else:
+                old_display = old_val or "—"
+                new_display = new_val or "—"
+            changes.append({"label": label, "old": old_display, "new": new_display})
+
+    if request.method == "POST":
+        now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        old_email = proposed["old_email"]
+        new_email = proposed["email"]
+        email_changed = old_email != new_email
+
+        conn = get_db_connection()
+        try:
+            conn.execute(
+                """
+                UPDATE users SET
+                    first_name = ?, last_name = ?, email = ?, mobile_number = ?,
+                    address_line_1 = ?, address_line_2 = ?, city = ?, county = ?,
+                    postcode = ?, country = ?,
+                    communication_preference = ?, marketing_opt_in = ?, notifications_opt_in = ?,
+                    updated_at = ?, updated_by_user_id = ?, updated_by_role = 'customer'
+                WHERE id = ?
+                """,
+                (
+                    proposed["first_name"], proposed["last_name"], new_email,
+                    proposed["mobile_number"], proposed["address_line_1"],
+                    proposed["address_line_2"], proposed["city"], proposed["county"],
+                    proposed["postcode"], proposed["country"],
+                    proposed["communication_preference"],
+                    proposed["marketing_opt_in"], proposed["notifications_opt_in"],
+                    now, session["user_id"], session["user_id"]
+                )
+            )
+            conn.commit()
+
+            # Fetch updated user for emails
+            updated_user = conn.execute(
+                "SELECT id, first_name, email FROM users WHERE id = ?",
+                (session["user_id"],)
+            ).fetchone()
+
+        finally:
+            conn.close()
+
+        # Update session to reflect new name and email immediately
+        session["user_name"] = proposed["first_name"]
+        session["email"] = new_email
+
+        # Clear change_details from session
+        session.pop("change_details", None)
+
+        # Send notification to new email
+        send_details_changed_email(updated_user)
+
+        # If email changed, also warn the old address
+        if email_changed:
+            send_email_changed_warning(old_email, proposed["first_name"], session["user_id"])
+
+        flash("Your details have been updated successfully.", "success")
+        return redirect(url_for("boards.dashboard"))
+
+    return render_template(
+        "change_details_step3.html",
+        proposed=proposed,
+        changes=changes,
+        step=3
     )

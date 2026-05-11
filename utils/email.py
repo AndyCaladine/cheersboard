@@ -14,6 +14,22 @@ LOGO_URL = "https://andycaladine.co.uk/images/cb_logo_dark.jpg"
 # ============================================================
 ADMIN_EMAIL = "hello@cheersboard.co.uk"
 
+# ============================================================
+# Reusable inline button style — forces colour in all email clients
+# ============================================================
+BTN_STYLE = (
+    "display:inline-block;"
+    "padding:14px 32px;"
+    "border-radius:50px;"
+    "font-size:16px;"
+    "font-weight:700;"
+    "text-decoration:none;"
+    "margin:24px 0;"
+    "background-color:#F5C518;"
+    "color:#141B2D !important;"
+    "-webkit-text-fill-color:#141B2D;"
+)
+
 
 def send_email(recipient_email, subject, html_body, email_type, user_id=None):
     """
@@ -125,17 +141,6 @@ def _base_template(content_html, preheader=""):
                 line-height: 1.6;
                 color: #cccccc;
             }}
-            .btn {{
-                display: inline-block;
-                padding: 14px 32px;
-                border-radius: 50px;
-                font-size: 16px;
-                font-weight: 700;
-                text-decoration: none;
-                margin: 24px 0;
-                background-color: #F5C518;
-                color: #141B2D;
-            }}
             .divider {{
                 border: none;
                 border-top: 1px solid #2a2a2a;
@@ -216,7 +221,7 @@ def send_welcome_email(user):
             Head to your dashboard to create your first board and start sharing the love.
         </p>
         <p style="text-align:center;">
-            <a href="https://cheersboard.co.uk/dashboard" class="btn">Go to my dashboard</a>
+            <a href="https://cheersboard.co.uk/dashboard" style="{BTN_STYLE}">Go to my dashboard</a>
         </p>
         <hr class="divider" />
         <p style="font-size:14px; color:#888888;">
@@ -248,7 +253,7 @@ def send_password_reset_email(user, reset_url):
             Click the button below to choose a new one. This link expires in <strong>1 hour</strong>.
         </p>
         <p style="text-align:center;">
-            <a href="{reset_url}" class="btn">Reset my password</a>
+            <a href="{reset_url}" style="{BTN_STYLE}">Reset my password</a>
         </p>
         <hr class="divider" />
         <p style="font-size:14px; color:#888888;">
@@ -264,6 +269,111 @@ def send_password_reset_email(user, reset_url):
         html_body=_base_template(content, preheader),
         email_type="password_reset",
         user_id=user["id"],
+    )
+
+
+def send_password_changed_email(user):
+    """Send a security notification when a user successfully changes their password."""
+    display_name = user["first_name"]
+    subject = "Your CheersBoard password has been changed"
+    preheader = "Your password was recently changed. If this wasn't you, contact us immediately."
+
+    content = f"""
+        <h2>Your password has been changed</h2>
+        <p>Hi {display_name},</p>
+        <p>
+            This is to let you know that your CheersBoard password was successfully changed.
+        </p>
+        <p>
+            If you made this change, you don't need to do anything else.
+        </p>
+        <hr class="divider" />
+        <p style="font-size:14px; color:#888888;">
+            <strong style="color:#ffffff;">Wasn't you?</strong> If you didn't change your password,
+            your account may have been accessed without your permission. Please
+            <a href="https://cheersboard.co.uk/contact" style="color:#F5C518;">contact us immediately</a>
+            so we can help secure your account.
+        </p>
+    """
+
+    return send_email(
+        recipient_email=user["email"],
+        subject=subject,
+        html_body=_base_template(content, preheader),
+        email_type="password_changed",
+        user_id=user["id"],
+    )
+
+
+def send_details_changed_email(user):
+    """
+    Send a security notification to the user's new email when their details are updated.
+    Does not reveal what changed — directs them to log in to review.
+    """
+    display_name = user["first_name"]
+    subject = "Your CheersBoard account details have been updated"
+    preheader = "Your account details were recently changed. If this wasn't you, contact us."
+
+    content = f"""
+        <h2>Your details have been updated</h2>
+        <p>Hi {display_name},</p>
+        <p>
+            This is to let you know that your CheersBoard account details were successfully updated.
+        </p>
+        <p style="text-align:center;">
+            <a href="https://cheersboard.co.uk/login" style="{BTN_STYLE}">Log in to review</a>
+        </p>
+        <hr class="divider" />
+        <p style="font-size:14px; color:#888888;">
+            <strong style="color:#ffffff;">Wasn't you?</strong> If you didn't make these changes,
+            your account may have been accessed without your permission. Please
+            <a href="https://cheersboard.co.uk/contact" style="color:#F5C518;">contact us immediately</a>
+            so we can help secure your account.
+        </p>
+    """
+
+    return send_email(
+        recipient_email=user["email"],
+        subject=subject,
+        html_body=_base_template(content, preheader),
+        email_type="details_changed",
+        user_id=user["id"],
+    )
+
+
+def send_email_changed_warning(old_email, first_name, user_id):
+    """
+    Send a warning to the OLD email address when a user changes their email.
+    This alerts them in case the change was not authorised.
+    """
+    subject = "Your CheersBoard email address has been changed"
+    preheader = "Your email address was changed. If this wasn't you, contact us immediately."
+
+    content = f"""
+        <h2>Email address changed</h2>
+        <p>Hi {first_name},</p>
+        <p>
+            This is to let you know that the email address associated with your CheersBoard account
+            has been changed. This email was sent to your previous address as a security precaution.
+        </p>
+        <p>
+            If you made this change, you don't need to do anything else.
+        </p>
+        <hr class="divider" />
+        <p style="font-size:14px; color:#888888;">
+            <strong style="color:#ffffff;">Wasn't you?</strong> If you didn't change your email address,
+            your account may have been accessed without your permission. Please
+            <a href="https://cheersboard.co.uk/contact" style="color:#F5C518;">contact us immediately</a>
+            so we can help secure your account.
+        </p>
+    """
+
+    return send_email(
+        recipient_email=old_email,
+        subject=subject,
+        html_body=_base_template(content, preheader),
+        email_type="email_changed_warning",
+        user_id=user_id,
     )
 
 
@@ -321,7 +431,7 @@ def send_contact_admin_email(name, email, subject, message):
             <p>{message}</p>
         </div>
         <p style="text-align:center;">
-            <a href="https://cheersboard.co.uk/admin/contact" class="btn">View in admin panel</a>
+            <a href="https://cheersboard.co.uk/admin/contact" style="{BTN_STYLE}">View in admin panel</a>
         </p>
     """
 

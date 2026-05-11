@@ -26,6 +26,7 @@
    15. Form actions
    16. Login link
    17. Responsive
+   18. Change Details
    ============================================================ */
 
 
@@ -781,4 +782,77 @@
         text-align: left;
         color: rgba(255,255,255,0.85);
     }
+}
+
+/* ============================================================
+   18. Change Details
+   ============================================================ */
+
+.change-summary {
+    margin: 0 0 1.5rem;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.change-summary__table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+}
+
+.change-summary__table thead tr {
+    background: rgba(255, 255, 255, 0.06);
+}
+
+.change-summary__table th {
+    padding: 0.75rem 1rem;
+    text-align: left;
+    font-family: var(--font-display);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.5);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.change-summary__table tbody tr {
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.change-summary__table tbody tr:hover {
+    background: rgba(255, 255, 255, 0.03);
+}
+
+.change-summary__table td {
+    padding: 0.75rem 1rem;
+    vertical-align: top;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.change-summary__field {
+    font-weight: 600;
+    color: var(--color-white) !important;
+    white-space: nowrap;
+}
+
+.change-summary__old {
+    color: rgba(255, 255, 255, 0.45) !important;
+    text-decoration: line-through;
+}
+
+.change-summary__new {
+    color: var(--color-green) !important;
+    font-weight: 600;
+}
+
+.change-summary__none {
+    text-align: center;
+    color: rgba(255, 255, 255, 0.45);
+    font-size: 0.9375rem;
+    padding: 1.5rem 0;
+}
+
+.form-checkbox label {
+    color: rgba(255, 255, 255, 0.85);
 }
