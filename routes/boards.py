@@ -307,3 +307,41 @@ def board_settings(slug):
         ui_theme=ui_theme,
         board_url=board_url,
     )
+
+
+# ============================================================
+# Regenerate board slug
+# ============================================================
+
+@boards_bp.route("/board/<slug>/regenerate", methods=["POST"])
+@login_required
+def regenerate_slug(slug):
+    conn = get_db_connection()
+    try:
+        board = conn.execute(
+            "SELECT id, title FROM boards WHERE slug = ? AND owner_user_id = ?",
+            (slug, session["user_id"])
+        ).fetchone()
+
+        if not board:
+            flash("Board not found.", "error")
+            return redirect(url_for("boards.dashboard"))
+
+        new_slug = generate_slug(board["title"])
+
+        conn.execute(
+            """
+            UPDATE boards
+            SET slug = ?, updated_at = CURRENT_TIMESTAMP,
+                updated_by_user_id = ?, updated_by_role = 'customer'
+            WHERE id = ?
+            """,
+            (new_slug, session["user_id"], board["id"])
+        )
+        conn.commit()
+
+    finally:
+        conn.close()
+
+    flash("Your share code has been regenerated. Make sure to share the new link.", "success")
+    return redirect(url_for("boards.board_settings", slug=new_slug))

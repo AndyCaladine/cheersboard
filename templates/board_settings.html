@@ -10,9 +10,7 @@
 {% block content %}
 <div class="bs-layout">
 
-    <!-- ============================================================
-         Page header
-         ============================================================ -->
+    <!-- Header -->
     <div class="bs-header">
         <div class="bs-header__left">
             <a href="{{ url_for('boards.dashboard') }}" class="bs-back">← Back to dashboard</a>
@@ -29,34 +27,31 @@
 
     <div class="bs-body">
 
-        <!-- ============================================================
-             Share your board
-             ============================================================ -->
+        <!-- Share your board -->
         <section class="bs-card">
             <h2 class="bs-card__title">Share your board</h2>
             <p class="bs-card__desc">
                 Send this link to anyone you'd like to add a message.
                 They don't need a CheersBoard account — just click and go.
             </p>
-
             <div class="bs-share">
                 <div class="bs-share__url-row">
-                    <input
-                        type="text"
-                        class="bs-share__url-input"
-                        id="shareUrl"
-                        value="{{ board_url }}"
-                        readonly
-                    >
-                    <button class="btn btn--primary bs-share__copy-btn" id="copyUrlBtn">
-                        Copy link
-                    </button>
+                    <div class="bs-share__url-wrapper">
+                        <input
+                            type="password"
+                            class="bs-share__url-input"
+                            id="shareUrl"
+                            value="{{ board_url }}"
+                            readonly
+                        >
+                        <button type="button" class="bs-share__show-btn" id="showUrlBtn">Show</button>
+                    </div>
+                    <button class="btn btn--primary bs-share__copy-btn" id="copyUrlBtn">Copy link</button>
                 </div>
                 <p class="bs-share__copied" id="copiedMsg" aria-live="polite"></p>
             </div>
 
             {% if board.tier in ('lite', 'premium', 'event') %}
-            <!-- QR Code placeholder — will be generated in a future milestone -->
             <div class="bs-qr">
                 <div class="bs-qr__placeholder">
                     <span class="bs-qr__icon">▦</span>
@@ -65,14 +60,23 @@
                 </div>
             </div>
             {% endif %}
+
+            <!-- Regenerate share code — lives here as it directly affects the share link -->
+            <div class="bs-regen">
+                <div class="bs-regen__text">
+                    <p class="bs-regen__title">Need a new share link?</p>
+                    <p class="bs-regen__desc">
+                        If your link has been shared with the wrong people, you can generate a new one.
+                        The old link will stop working immediately.
+                    </p>
+                </div>
+                <button class="btn bs-regen__btn" id="regenerateBtn">Generate new code</button>
+            </div>
         </section>
 
-        <!-- ============================================================
-             Board details
-             ============================================================ -->
+        <!-- Board details -->
         <section class="bs-card">
             <h2 class="bs-card__title">Board details</h2>
-
             <div class="bs-details">
                 <div class="bs-details__row">
                     <span class="bs-details__label">Board name</span>
@@ -104,13 +108,12 @@
                 </div>
                 <div class="bs-details__row">
                     <span class="bs-details__label">Created</span>
-                    <span class="bs-details__value">{{ board.created_at | format_datetime }}</span>                </div>
+                    <span class="bs-details__value">{{ board.created_at | format_datetime }}</span>
+                </div>
             </div>
         </section>
 
-        <!-- ============================================================
-             Upgrade prompt (free boards only)
-             ============================================================ -->
+        <!-- Upgrade prompt (free boards only) -->
         {% if board.tier == 'free' %}
         <section class="bs-card bs-card--upgrade">
             <div class="bs-upgrade">
@@ -127,45 +130,81 @@
                     </ul>
                 </div>
                 <div class="bs-upgrade__action">
-                    <a href="#" class="btn btn--primary bs-upgrade__btn">
-                        Upgrade this board
-                    </a>
+                    <a href="#" class="btn btn--primary bs-upgrade__btn">Upgrade this board</a>
                     <p class="bs-upgrade__note">One-off payment. No subscription.</p>
                 </div>
             </div>
         </section>
         {% endif %}
 
-        <!-- ============================================================
-             Danger zone
-             ============================================================ -->
-        <section class="bs-card bs-card--danger">
-            <h2 class="bs-card__title bs-card__title--danger">Danger zone</h2>
-            <p class="bs-card__desc">
-                Archiving a board hides it from contributors but keeps all messages safe.
-                You can unarchive it at any time from your dashboard.
-            </p>
-            <button class="btn bs-danger-btn" disabled title="Coming soon">
-                Archive this board
-            </button>
+        <!-- Advanced settings -->
+        <section class="bs-card bs-card--advanced">
+            <h2 class="bs-card__title">Advanced settings</h2>
+            <p class="bs-card__desc">These actions affect the availability of your board. Please read each warning carefully before proceeding.</p>
+
+            <div class="bs-danger-items">
+
+                <!-- Archive board -->
+                <div class="bs-danger-sub">
+                    <div class="bs-danger-sub__content">
+                        <h3 class="bs-danger-sub__title">Archive this board</h3>
+                        <p class="bs-danger-sub__risk">
+                            <strong>⚠ Risk:</strong> The board will be hidden from contributors and the share link will stop working.
+                            All messages are kept safely and you can unarchive at any time from your dashboard.
+                        </p>
+                    </div>
+                    <button class="btn bs-danger-btn" disabled title="Coming soon">Archive board</button>
+                </div>
+
+            </div>
         </section>
 
     </div>
 </div>
+
+<!-- Regenerate confirmation modal -->
+<div class="bs-modal-overlay" id="regenerateModal" aria-hidden="true">
+    <div class="bs-modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+        <h2 class="bs-modal__title" id="modalTitle">Generate a new share code?</h2>
+        <p class="bs-modal__body">
+            This will create a brand new link for your board. The current link will
+            <strong>stop working immediately</strong> — anyone who has it will no longer
+            be able to access your board until you share the new link with them.
+        </p>
+        <p class="bs-modal__body">All existing messages on your board will be kept safe.</p>
+        <div class="bs-modal__actions">
+            <button class="btn bs-modal__cancel" id="modalCancelBtn">Cancel</button>
+            <form method="POST" action="{{ url_for('boards.regenerate_slug', slug=board.slug) }}" style="display:inline;">
+                <button type="submit" class="btn btn--primary bs-modal__confirm">Yes, generate new code</button>
+            </form>
+        </div>
+    </div>
+</div>
+
 {% endblock %}
 
 {% block extra_js %}
 <script>
-    // ============================================================
-    // Copy share URL to clipboard
-    // ============================================================
+    // Show / hide share URL
+    const shareUrlInput = document.getElementById('shareUrl');
+    const showUrlBtn = document.getElementById('showUrlBtn');
+    let urlVisible = false;
+
+    if (showUrlBtn && shareUrlInput) {
+        showUrlBtn.addEventListener('click', () => {
+            urlVisible = !urlVisible;
+            shareUrlInput.type = urlVisible ? 'text' : 'password';
+            showUrlBtn.textContent = urlVisible ? 'Hide' : 'Show';
+        });
+    }
+
+    // Copy share URL
     const copyBtn = document.getElementById('copyUrlBtn');
-    const shareUrl = document.getElementById('shareUrl');
     const copiedMsg = document.getElementById('copiedMsg');
 
-    if (copyBtn && shareUrl) {
+    if (copyBtn && shareUrlInput) {
         copyBtn.addEventListener('click', () => {
-            navigator.clipboard.writeText(shareUrl.value).then(() => {
+            navigator.clipboard.writeText(shareUrlInput.value).then(() => {
                 copiedMsg.textContent = 'Link copied to clipboard!';
                 copyBtn.textContent = 'Copied!';
                 setTimeout(() => {
@@ -173,12 +212,39 @@
                     copyBtn.textContent = 'Copy link';
                 }, 3000);
             }).catch(() => {
-                // Fallback for older browsers
-                shareUrl.select();
+                shareUrlInput.select();
                 document.execCommand('copy');
                 copiedMsg.textContent = 'Link copied!';
                 setTimeout(() => { copiedMsg.textContent = ''; }, 3000);
             });
+        });
+    }
+
+    // Regenerate modal
+    const regenerateBtn = document.getElementById('regenerateBtn');
+    const modal = document.getElementById('regenerateModal');
+    const modalCancelBtn = document.getElementById('modalCancelBtn');
+
+    if (regenerateBtn && modal) {
+        regenerateBtn.addEventListener('click', () => {
+            modal.classList.add('is-open');
+            modal.setAttribute('aria-hidden', 'false');
+        });
+        modalCancelBtn.addEventListener('click', () => {
+            modal.classList.remove('is-open');
+            modal.setAttribute('aria-hidden', 'true');
+        });
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.classList.remove('is-open');
+                modal.setAttribute('aria-hidden', 'true');
+            }
+        });
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && modal.classList.contains('is-open')) {
+                modal.classList.remove('is-open');
+                modal.setAttribute('aria-hidden', 'true');
+            }
         });
     }
 </script>
